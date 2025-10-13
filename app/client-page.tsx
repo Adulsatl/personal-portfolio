@@ -500,7 +500,7 @@ const StaticPortfolio = ({ portfolioData }) => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <p className="text-sm text-gray-600 dark:text-gray-300">About</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300"></p>
               <h3 className="text-lg font-semibold text-cyan-600 dark:text-cyan-400">{safeData.name}</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">{safeData.title}</p>
             </motion.div>
