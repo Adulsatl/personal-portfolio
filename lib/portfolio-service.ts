@@ -29,10 +29,20 @@ export async function getPortfolioData() {
         if (data.content && !data.content.certifications) {
           data.content.certifications = []
         }
+        // Ensure photos array exists
+        if (data.content && !Array.isArray(data.content.photos)) {
+          data.content.photos = []
+        }
 
-        cachedPortfolioData = data.content
+        cachedPortfolioData = {
+          ...getDefaultPortfolioData(),
+          ...(data.content || {}),
+          // keep safe defaults for arrays
+          certifications: Array.isArray(data.content?.certifications) ? data.content.certifications : [],
+          photos: Array.isArray(data.content?.photos) ? data.content.photos : [],
+        }
         lastFetchTime = now
-        return data.content
+        return cachedPortfolioData
       }
     } catch (error) {
       console.warn("Exception fetching portfolio data:", error)
@@ -57,9 +67,12 @@ export async function updatePortfolioData(data: any) {
   try {
     console.log("Updating portfolio data")
 
-    // Ensure certifications array exists
-    if (!data.certifications) {
+    // Ensure certifications and photos arrays exist
+    if (!Array.isArray(data.certifications)) {
       data.certifications = []
+    }
+    if (!Array.isArray(data.photos)) {
+      data.photos = []
     }
 
     const { error } = await supabaseAdmin.from("portfolio").upsert({
@@ -172,7 +185,7 @@ export async function getEnquiries() {
 }
 
 // Add enquiry
-export async function addEnquiry(enquiry) {
+export async function addEnquiry(enquiry: { name: string; email: string; message: string }) {
   try {
     if (!supabase) {
       console.error("Supabase client not initialized")
@@ -200,8 +213,8 @@ export async function addEnquiry(enquiry) {
   }
 }
 
-// Add this function to the file
-export async function deleteEnquiry(enquiryId) {
+// Delete enquiry
+export async function deleteEnquiry(enquiryId: string) {
   try {
     console.log("Deleting enquiry:", enquiryId)
 
@@ -227,8 +240,10 @@ function getDefaultPortfolioData() {
     title: "Junior IT Administrator",
     shortBio: "Passionate IT administrator with expertise in network management.",
     longBio: "I'm a dedicated junior IT administrator with a strong foundation in IT infrastructure management.",
-    profileImage: "/placeholder.svg?height=400&width=400",
+    profileImage: "/portrait-headshot-dark-background.jpg",
     cvUrl: "",
+    // NEW: 2-3 default photos in the gallery
+    photos: ["/professional-portrait-neutral-background.jpg", "/working-on-computer-desk-setup.jpg", "/it-administrator-at-server-rack.jpg"],
     coreSkills: ["Windows Server", "Linux Administration", "Network Management"],
     skillCategories: [
       {

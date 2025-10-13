@@ -159,7 +159,7 @@ export default function CertificationSection({ certifications = [] }: Certificat
               <h3 className="text-2xl font-semibold mb-6 text-center">Badges</h3>
               {certificatesWithBadges.length > 0 ? (
                 <motion.div
-                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
+                  className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-5 md:gap-6"
                   variants={staggerContainer}
                   initial="hidden"
                   animate="visible"
@@ -171,7 +171,7 @@ export default function CertificationSection({ certifications = [] }: Certificat
                       whileHover={{ scale: 1.05, y: -5 }}
                       variants={fadeIn}
                     >
-                      <div className="relative w-24 h-24 mb-2 group">
+                      <div className="relative w-20 h-20 md:w-22 md:h-22 mb-3 rounded-full overflow-hidden shadow-md transition-all duration-300 badge-image">
                         <img
                           src={cert.badgeImage || "/placeholder.svg?height=100&width=100&text=Badge"}
                           alt={`${cert.name} Badge`}
