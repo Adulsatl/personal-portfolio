@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { ExternalLink } from "lucide-react"
@@ -11,9 +11,10 @@ type CertificationType = {
   issuer: string
   date: string
   link?: string
-  image?: string
-  badgeImage?: string
+  image?: string | null
+  badgeImage?: string | null
   category: string
+  displayType?: "badge" | "certificate"
 }
 
 type CertificationSectionProps = {
@@ -24,27 +25,39 @@ export default function CertificationSection({ certifications = [] }: Certificat
   const [displayMode, setDisplayMode] = useState<"badge" | "certificate" | "both">("both")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
 
-  if (!certifications || certifications.length === 0) {
-    return null
-  }
+  const categories = useMemo(() => {
+    const set = new Set<string>()
+    certifications.forEach((c) => {
+      if (c.category) set.add(c.category)
+    })
+    return ["all", ...Array.from(set)]
+  }, [certifications])
 
-  // Extract unique categories
-  const categories = ["all", ...new Set(certifications.map((cert) => cert.category))]
+  const filtered = useMemo(() => {
+    return selectedCategory === "all"
+      ? certifications
+      : certifications.filter((cert) => cert.category === selectedCategory)
+  }, [certifications, selectedCategory])
 
-  // Filter certifications by category
-  const filteredCertifications =
-    selectedCategory === "all" ? certifications : certifications.filter((cert) => cert.category === selectedCategory)
+  const badges = filtered.filter((cert) => {
+    // Admin-selected type overrides automatic inference
+    if (cert.displayType === "badge") return true
+    if (cert.displayType === "certificate") return false
+    // Automatic inference
+    if (cert.badgeImage && cert.badgeImage.trim() !== "") return true
+    return false
+  })
 
-  // Debug log
-  console.log("Filtered certifications:", filteredCertifications)
-  // Separate certificates and badges
-  // A certificate with both image and badgeImage will appear in both sections
-  const certificatesWithImages = filteredCertifications.filter((cert) => cert && cert.image && cert.image.trim() !== "")
-  const certificatesWithBadges = filteredCertifications.filter(
-    (cert) => cert && cert.badgeImage && cert.badgeImage.trim() !== "",
-  )
-  console.log("Certificates with images:", certificatesWithImages)
-  console.log("Certificates with badges:", certificatesWithBadges)
+  const certs = filtered.filter((cert) => {
+    // Admin-selected type overrides automatic inference
+    if (cert.displayType === "certificate") return true
+    if (cert.displayType === "badge") return false
+    // Automatic inference
+    const hasBadge = !!(cert.badgeImage && cert.badgeImage.trim() !== "")
+    const hasCertImage = !!(cert.image && cert.image.trim() !== "")
+    if (!hasBadge && hasCertImage) return true
+    return false
+  })
 
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
@@ -53,12 +66,11 @@ export default function CertificationSection({ certifications = [] }: Certificat
 
   const staggerContainer = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
+    visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
+  }
+
+  if (!certifications || certifications.length === 0) {
+    return null
   }
 
   return (
@@ -80,14 +92,15 @@ export default function CertificationSection({ certifications = [] }: Certificat
           Certifications
         </motion.h2>
 
+        {/* Controls */}
         <motion.div
-          className="flex flex-wrap justify-center gap-4 mb-8"
+          className="flex flex-col items-center gap-4 mb-8"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
           viewport={{ once: true }}
         >
-          <div className="flex flex-wrap justify-center gap-2 mb-4">
+          <div className="flex flex-wrap justify-center gap-2">
             {categories.map((category) => (
               <motion.button
                 key={category}
@@ -105,7 +118,7 @@ export default function CertificationSection({ certifications = [] }: Certificat
             ))}
           </div>
 
-          <div className="flex justify-center gap-2 mb-4">
+          <div className="flex justify-center gap-2">
             <motion.button
               onClick={() => setDisplayMode("badge")}
               className={`px-4 py-2 rounded-md transition-colors ${
@@ -146,7 +159,7 @@ export default function CertificationSection({ certifications = [] }: Certificat
         </motion.div>
 
         <AnimatePresence mode="wait">
-          {/* Badge View */}
+          {/* BADGES (rows of logos) */}
           {(displayMode === "badge" || displayMode === "both") && (
             <motion.div
               className="mb-12"
@@ -157,21 +170,21 @@ export default function CertificationSection({ certifications = [] }: Certificat
               transition={{ duration: 0.5 }}
             >
               <h3 className="text-2xl font-semibold mb-6 text-center">Badges</h3>
-              {certificatesWithBadges.length > 0 ? (
+              {badges.length > 0 ? (
                 <motion.div
                   className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-5 md:gap-6"
                   variants={staggerContainer}
                   initial="hidden"
                   animate="visible"
                 >
-                  {certificatesWithBadges.map((cert) => (
+                  {badges.map((cert) => (
                     <motion.div
                       key={`badge-${cert.id}`}
                       className="flex flex-col items-center"
                       whileHover={{ scale: 1.05, y: -5 }}
                       variants={fadeIn}
                     >
-                      <div className="relative w-20 h-20 md:w-22 md:h-22 mb-3 rounded-full overflow-hidden shadow-md transition-all duration-300 badge-image">
+                      <div className="relative w-20 h-20 md:w-24 md:h-24 mb-3 rounded-full overflow-hidden shadow-md transition-all duration-300">
                         <img
                           src={cert.badgeImage || "/placeholder.svg?height=100&width=100&text=Badge"}
                           alt={`${cert.name} Badge`}
@@ -180,24 +193,20 @@ export default function CertificationSection({ certifications = [] }: Certificat
                             e.currentTarget.src = "/placeholder.svg?height=100&width=100&text=Badge"
                           }}
                         />
-                        <motion.div
-                          className="absolute inset-0 bg-blue-600/10 dark:bg-blue-400/10 opacity-0 rounded-full"
-                          whileHover={{ opacity: 1 }}
-                        />
                       </div>
-                      <h4 className="text-sm font-medium text-center">{cert.name}</h4>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 text-center">{cert.issuer}</p>
+                      <h4 className="text-xs md:text-sm font-medium text-center">{cert.name}</h4>
+                      <p className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400 text-center">
+                        {cert.issuer}
+                      </p>
                       {cert.link && (
-                        <motion.div whileHover={{ x: 2 }}>
-                          <Link
-                            href={cert.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-1 text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center"
-                          >
-                            View <ExternalLink className="ml-1 h-3 w-3" />
-                          </Link>
-                        </motion.div>
+                        <Link
+                          href={cert.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-1 text-xs text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center"
+                        >
+                          View <ExternalLink className="ml-1 h-3 w-3" />
+                        </Link>
                       )}
                     </motion.div>
                   ))}
@@ -208,7 +217,7 @@ export default function CertificationSection({ certifications = [] }: Certificat
             </motion.div>
           )}
 
-          {/* Certificate View */}
+          {/* CERTIFICATES */}
           {(displayMode === "certificate" || displayMode === "both") && (
             <motion.div
               key="certificate-view"
@@ -218,14 +227,14 @@ export default function CertificationSection({ certifications = [] }: Certificat
               transition={{ duration: 0.5 }}
             >
               <h3 className="text-2xl font-semibold mb-6 text-center">Certificates</h3>
-              {certificatesWithImages.length > 0 ? (
+              {certs.length > 0 ? (
                 <motion.div
                   className="grid grid-cols-1 md:grid-cols-2 gap-6"
                   variants={staggerContainer}
                   initial="hidden"
                   animate="visible"
                 >
-                  {certificatesWithImages.map((cert) => (
+                  {certs.map((cert) => (
                     <motion.div
                       key={`cert-${cert.id}`}
                       className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden"
@@ -238,16 +247,14 @@ export default function CertificationSection({ certifications = [] }: Certificat
                           <p className="text-sm text-gray-600 dark:text-gray-400">{cert.issuer}</p>
                         </div>
                         {cert.link && (
-                          <motion.div whileHover={{ scale: 1.1, rotate: 5 }} whileTap={{ scale: 0.9 }}>
-                            <Link
-                              href={cert.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 dark:text-blue-400 hover:underline flex items-center"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </Link>
-                          </motion.div>
+                          <Link
+                            href={cert.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </Link>
                         )}
                       </div>
                       <div className="relative aspect-[16/9] overflow-hidden">
@@ -258,14 +265,8 @@ export default function CertificationSection({ certifications = [] }: Certificat
                           whileHover={{ scale: 1.05 }}
                           transition={{ duration: 0.3 }}
                           onError={(e) => {
-                            console.log("Certificate image failed to load:", cert.image)
                             e.currentTarget.src = "/placeholder.svg?height=200&width=400&text=Certificate"
                           }}
-                        />
-                        <motion.div
-                          className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0"
-                          whileHover={{ opacity: 1 }}
-                          transition={{ duration: 0.3 }}
                         />
                       </div>
                       <div className="p-4">
