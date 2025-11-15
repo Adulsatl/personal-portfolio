@@ -266,6 +266,40 @@ function getDefaultPortfolioData() {
       phone: "",
       location: "",
     },
-    certifications: [], // Ensure certifications array exists in default data
+    certifications: [
+      {
+        id: "1",
+        name: "AWS Certified Solutions Architect",
+        issuer: "Amazon Web Services",
+        date: "2024-01-15",
+        link: "https://aws.amazon.com/certification/",
+        image: "/placeholder.svg?height=200&width=400&text=AWS%20Certification",
+        badgeImage: "/placeholder.svg?height=100&width=100&text=AWS%20Badge",
+        category: "cloud",
+        displayType: "both" as const,
+      },
+      {
+        id: "2",
+        name: "Microsoft Certified: Azure Administrator",
+        issuer: "Microsoft",
+        date: "2024-02-20",
+        link: "https://learn.microsoft.com/en-us/certifications/",
+        image: "/placeholder.svg?height=200&width=400&text=Azure%20Certification",
+        badgeImage: "/placeholder.svg?height=100&width=100&text=Azure%20Badge",
+        category: "cloud",
+        displayType: "both" as const,
+      },
+      {
+        id: "3",
+        name: "Cisco Certified Network Associate (CCNA)",
+        issuer: "Cisco",
+        date: "2023-12-10",
+        link: "https://www.cisco.com/c/en/us/training-events/training-certifications/certifications/associate/ccna.html",
+        image: "/placeholder.svg?height=200&width=400&text=CCNA%20Certification",
+        badgeImage: "/placeholder.svg?height=100&width=100&text=CCNA%20Badge",
+        category: "networking",
+        displayType: "both" as const,
+      },
+    ],
   }
 }
