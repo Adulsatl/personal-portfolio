@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink } from "lucide-react"
 
 type CertificationType = {
   id: string
@@ -70,32 +70,7 @@ export default function CertificationSection({ certifications = [] }: Certificat
   }
 
   if (!certifications || certifications.length === 0) {
-    return (
-      <section id="certifications" className="py-20 px-4 md:px-6 bg-gray-50 dark:bg-gray-900">
-        <motion.div
-          className="max-w-5xl mx-auto"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeIn}
-        >
-          <motion.h2
-            className="text-3xl md:text-4xl font-bold mb-8 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-          >
-            Certifications & Badges
-          </motion.h2>
-
-          <div className="text-center py-12">
-            <p className="text-gray-600 dark:text-gray-400 mb-4">No certifications added yet.</p>
-            <p className="text-sm text-gray-500 dark:text-gray-500">Add your first certification or badge from the admin dashboard to display them here.</p>
-          </div>
-        </motion.div>
-      </section>
-    )
+    return null
   }
 
   return (
@@ -114,7 +89,7 @@ export default function CertificationSection({ certifications = [] }: Certificat
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
-          Certifications & Badges
+          Certifications
         </motion.h2>
 
         {/* Controls */}

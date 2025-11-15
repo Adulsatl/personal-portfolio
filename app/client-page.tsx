@@ -150,7 +150,6 @@ const StaticPortfolio = ({ portfolioData }) => {
     { id: "experience", label: "Experience" },
     { id: "projects", label: "Projects" },
     { id: "certifications", label: "Certifications" },
-    { id: "shop", label: "Shop" },
     { id: "contact", label: "Contact" },
   ]
 
@@ -785,27 +784,6 @@ const StaticPortfolio = ({ portfolioData }) => {
 
       {/* CERTIFICATIONS (kept as-is with visual consistency) */}
       <CertificationSection certifications={safeData.certifications} />
-
-      {/* SHOP SECTION (NEW) */}
-      <section id="shop" className="py-20 px-4 md:px-6 relative overflow-hidden">
-        <div className="max-w-6xl mx-auto relative z-10">
-          <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-blue-600 dark:from-cyan-400 dark:to-blue-400 mb-4">
-              My Shop
-            </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-cyan-500 to-blue-600 mx-auto rounded-full" />
-          </motion.div>
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-            This is where shop items would be listed. (Content to be added)
-          </div>
-        </div>
-      </section>
 
       {/* CONTACT with blurred photo background (frosted card) */}
       <section id="contact" className="py-20 px-4 md:px-6 relative overflow-hidden">
