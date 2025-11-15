@@ -1,14 +1,13 @@
 "use client"
 
 import { useState, useEffect, useRef, useMemo } from "react"
-import { Menu, X, ArrowRight, Github, Linkedin, Mail, Phone, MapPin, Download, Loader2 } from "lucide-react"
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion"
+import { Menu, X, ArrowRight, Github, Linkedin, Mail, Phone, MapPin, Download, Loader2 } from 'lucide-react'
+import { motion, AnimatePresence } from "framer-motion"
 import CertificationSection from "@/components/certification-section"
 
 // Util: pick provided photos or default fallbacks
 function usePhotos(portfolioData?: any) {
   const uploaded = Array.isArray(portfolioData?.photos) ? portfolioData.photos : []
-  // Order matters: hero, about/secondary, desk divider, server rack bg, abstract bg
   const fallbacks = [
     "/portrait-headshot-dark-background.jpg",
     "/professional-portrait-neutral-background.jpg",
@@ -19,51 +18,19 @@ function usePhotos(portfolioData?: any) {
   return Array.from({ length: 5 }).map((_, i) => uploaded[i] || fallbacks[i])
 }
 
-// Mouse-based parallax offsets for subtle movement
-function useParallax(strength = 15) {
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
-
-  useEffect(() => {
-    const handle = (e: MouseEvent) => {
-      const { innerWidth, innerHeight } = window
-      const relX = (e.clientX / innerWidth - 0.5) * 2 // -1..1
-      const relY = (e.clientY / innerHeight - 0.5) * 2
-      x.set(relX * strength)
-      y.set(relY * strength)
-    }
-    window.addEventListener("mousemove", handle, { passive: true })
-    return () => window.removeEventListener("mousemove", handle)
-  }, [x, y, strength])
-
-  return { x, y }
-}
-
 // Enhanced 3D Loader Component
 const Enhanced3DLoader = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="perspective-3d">
-        <div className="cube">
-          <div className="cube-face cube-face-front"></div>
-          <div className="cube-face cube-face-back"></div>
-          <div className="cube-face cube-face-right"></div>
-          <div className="cube-face cube-face-left"></div>
-          <div className="cube-face cube-face-top"></div>
-          <div className="cube-face cube-face-bottom"></div>
-        </div>
-      </div>
-      <div className="mt-8 text-cyan-600 dark:text-cyan-400 font-medium flex items-center">
-        <Loader2 className="animate-spin mr-2 h-5 w-5" />
-        <motion.span
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="text-lg"
-        >
-          Loading Portfolio...
-        </motion.span>
-      </div>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mb-4"></div>
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="text-lg text-cyan-600 dark:text-cyan-400 font-medium"
+      >
+        Loading Portfolio...
+      </motion.span>
       <motion.div
         className="w-48 h-1 bg-gray-200 dark:bg-gray-700 rounded-full mt-4 overflow-hidden"
         initial={{ opacity: 0 }}
@@ -74,25 +41,23 @@ const Enhanced3DLoader = () => {
           className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full"
           initial={{ width: "0%" }}
           animate={{ width: "100%" }}
-          transition={{ duration: 2.5, ease: "easeInOut", repeat: Number.POSITIVE_INFINITY }}
+          transition={{ duration: 2.5, ease: "easeInOut" }}
         />
       </motion.div>
     </div>
   )
 }
 
-// Static portfolio page with integrated photos and VFX
+// Static portfolio page with integrated photos
 const StaticPortfolio = ({ portfolioData }) => {
   const photos = usePhotos(portfolioData)
-  const { x: parallaxX, y: parallaxY } = useParallax(10)
 
   // Ensure required properties exist
   const safeData = useMemo(
     () => ({
       name: portfolioData?.name || "Adul S.",
       title: portfolioData?.title || "Junior IT Administrator",
-      shortBio:
-        portfolioData?.shortBio || "Passionate IT administrator with expertise in network management and support.",
+      shortBio: portfolioData?.shortBio || "Passionate IT administrator with expertise in network management and support.",
       longBio:
         portfolioData?.longBio ||
         "I'm a dedicated junior IT administrator with a strong foundation in IT infrastructure, networking, and systems maintenance. I enjoy solving complex problems and keeping systems fast, secure, and reliable.",
@@ -175,10 +140,6 @@ const StaticPortfolio = ({ portfolioData }) => {
     visible: { opacity: 1, transition: { duration: 0.5, when: "beforeChildren", staggerChildren: 0.08 } },
     exit: { opacity: 0, transition: { duration: 0.3 } },
   }
-
-  // Motion transforms for hero cards
-  const cardTranslateX = useTransform(parallaxX, (v) => v * 0.7)
-  const cardTranslateY = useTransform(parallaxY, (v) => v * 0.7)
 
   return (
     <motion.div
@@ -419,11 +380,10 @@ const StaticPortfolio = ({ portfolioData }) => {
             </div>
           </motion.div>
 
-          {/* Layered photo cards with parallax + float */}
+          {/* Layered photo cards - simplified without parallax */}
           <div className="relative h-[420px] md:h-[520px] lg:h-[580px]">
             {/* Card 1 */}
             <motion.div
-              style={{ x: cardTranslateX, y: cardTranslateY }}
               whileHover={{ rotateZ: -1, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 200, damping: 18 }}
               className="absolute left-2 md:left-8 top-6 md:top-4 w-64 md:w-80 lg:w-96 aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl border border-cyan-500/30 backdrop-blur-sm bg-white/10 dark:bg-gray-900/20 vfx-glow"
@@ -545,9 +505,9 @@ const StaticPortfolio = ({ portfolioData }) => {
         </div>
       </section>
 
-      {/* Decorative desk photo divider with parallax */}
+      {/* Decorative desk photo divider without parallax */}
       <section aria-hidden="true" className="relative h-[28vh] md:h-[36vh] my-4 overflow-hidden">
-        <motion.div className="absolute inset-0" style={{ y: useTransform(parallaxY, (v) => v * 0.4) }}>
+        <motion.div className="absolute inset-0">
           <div
             className="w-full h-full"
             style={{
@@ -1078,7 +1038,7 @@ export default function ClientPage({ portfolioData }) {
 
   useEffect(() => {
     setIsClient(true)
-    const timer = setTimeout(() => setIsLoading(false), 1000)
+    const timer = setTimeout(() => setIsLoading(false), 1200)
     return () => clearTimeout(timer)
   }, [])
 
