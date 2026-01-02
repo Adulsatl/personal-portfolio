@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useState, useEffect, useRef, useMemo } from "react"
 import { Menu, X, ArrowRight, Github, Linkedin, Mail, Phone, MapPin, Download, ChevronRight } from 'lucide-react'
@@ -32,11 +32,6 @@ const Enhanced3DLoader = () => {
           animate={{ rotate: -360 }}
           transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
         />
-        <motion.div
-          className="absolute inset-8 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20"
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-        />
       </div>
       <motion.p
         initial={{ opacity: 0 }}
@@ -51,7 +46,7 @@ const Enhanced3DLoader = () => {
 }
 
 // Main Portfolio Component
-const StaticPortfolio = ({ portfolioData }) => {
+export const StaticPortfolio = ({ portfolioData }) => {
   const photos = usePhotos(portfolioData)
   
   const safeData = useMemo(
@@ -61,7 +56,7 @@ const StaticPortfolio = ({ portfolioData }) => {
       shortBio: portfolioData?.shortBio || "Passionate IT administrator with expertise in network management and infrastructure support.",
       longBio:
         portfolioData?.longBio ||
-        "I'm a dedicated IT professional with expertise in system administration, network management, and infrastructure optimization. I focus on creating efficient, secure, and scalable IT solutions.",
+        "I'm a dedicated IT professional with expertise in system administration, network management, and infrastructure optimization.",
       profileImage: portfolioData?.profileImage || photos[0],
       cvUrl: portfolioData?.cvUrl || "#",
       coreSkills: portfolioData?.coreSkills || ["Windows Server", "Linux Administration", "Network Management"],
@@ -78,6 +73,7 @@ const StaticPortfolio = ({ portfolioData }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState("hero")
   const [scrollY, setScrollY] = useState(0)
+  const [isMounted, setIsMounted] = useState(false)
 
   const sections = [
     { id: "about", label: "About" },
@@ -88,11 +84,11 @@ const StaticPortfolio = ({ portfolioData }) => {
     { id: "contact", label: "Contact" },
   ]
 
-  // Scroll detection
+  // Scroll detection and hydration fix
   useEffect(() => {
+    setIsMounted(true)
+    
     const handleScroll = () => {
-      if (typeof window === "undefined") return
-      
       const currentScrollY = window.scrollY
       setScrollY(currentScrollY)
 
@@ -135,6 +131,24 @@ const StaticPortfolio = ({ portfolioData }) => {
     },
   }
 
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+        <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-cyan-500/10">
+          <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#hero" className="font-bold text-2xl text-cyan-400">{safeData.name}</a>
+            <nav className="hidden md:flex gap-8">
+              {sections.map((section) => (
+                <button key={section.id} className="text-sm font-medium text-gray-300 hover:text-cyan-400">{section.label}</button>
+              ))}
+            </nav>
+            <button className="md:hidden p-2"><Menu size={24} /></button>
+          </div>
+        </header>
+      </div>
+    )
+  }
+
   return (
     <motion.div
       className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white overflow-x-hidden"
@@ -142,13 +156,13 @@ const StaticPortfolio = ({ portfolioData }) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
+      {/* Background effects */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <motion.div
           className="absolute top-20 -left-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"
           animate={{
             x: [0, 20, -10, 0],
             y: [0, -30, 10, 0],
-            scale: [1, 1.1, 0.9, 1],
           }}
           transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
         />
@@ -157,11 +171,9 @@ const StaticPortfolio = ({ portfolioData }) => {
           animate={{
             x: [0, -20, 10, 0],
             y: [0, 30, -10, 0],
-            scale: [1, 0.9, 1.1, 1],
           }}
           transition={{ duration: 22, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 1 }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-blue-500/5" />
       </div>
 
       {/* Header Navigation */}
@@ -178,7 +190,7 @@ const StaticPortfolio = ({ portfolioData }) => {
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <motion.a
             href="#hero"
-            className="font-bold text-2xl gradient-text"
+            className="font-bold text-2xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"
             whileHover={{ scale: 1.05 }}
           >
             {safeData.name}
@@ -190,7 +202,7 @@ const StaticPortfolio = ({ portfolioData }) => {
               <motion.button
                 key={section.id}
                 onClick={() => scrollToSection(section.id)}
-                className={`text-sm font-medium transition-colors relative group ${
+                className={`text-sm font-medium transition-colors relative ${
                   activeSection === section.id
                     ? "text-cyan-400"
                     : "text-gray-300 hover:text-cyan-400"
@@ -200,10 +212,9 @@ const StaticPortfolio = ({ portfolioData }) => {
                 {section.label}
                 {activeSection === section.id && (
                   <motion.div
-                    className="absolute -bottom-2 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500"
+                    className="absolute -bottom-2 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 w-full"
                     layoutId="nav-indicator"
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    style={{ width: "100%" }}
                   />
                 )}
               </motion.button>
@@ -216,9 +227,7 @@ const StaticPortfolio = ({ portfolioData }) => {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             whileTap={{ scale: 0.95 }}
           >
-            <AnimatePresence>
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </AnimatePresence>
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </motion.button>
         </div>
 
@@ -252,21 +261,18 @@ const StaticPortfolio = ({ portfolioData }) => {
       </motion.header>
 
       {/* Hero Section */}
-      <section id="hero" className="min-h-screen flex items-center px-4 pt-20 relative overflow-hidden">
+      <section id="hero" className="min-h-screen flex items-center px-4 pt-20">
         <div className="max-w-6xl mx-auto w-full grid lg:grid-cols-2 gap-12 items-center">
           {/* Text Content */}
           <motion.div
-            className="space-y-6 z-10"
+            className="space-y-6"
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
           >
             <motion.div variants={fadeInUp}>
               <h1 className="text-5xl md:text-7xl font-bold leading-tight">
-                Hi, I'm{" "}
-                <span className="gradient-text">
-                  {safeData.name}
-                </span>
+                Hi, I'm <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">{safeData.name}</span>
               </h1>
             </motion.div>
 
@@ -286,8 +292,7 @@ const StaticPortfolio = ({ portfolioData }) => {
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Get in Touch
-                <ArrowRight className="inline ml-2 h-4 w-4" />
+                Get in Touch <ArrowRight className="inline ml-2 h-4 w-4" />
               </motion.button>
 
               <motion.a
@@ -297,8 +302,7 @@ const StaticPortfolio = ({ portfolioData }) => {
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Download CV
-                <Download className="inline ml-2 h-4 w-4" />
+                Download CV <Download className="inline ml-2 h-4 w-4" />
               </motion.a>
             </motion.div>
 
@@ -331,38 +335,28 @@ const StaticPortfolio = ({ portfolioData }) => {
 
           {/* Image Cards */}
           <motion.div
-            className="relative h-96 md:h-[500px] hidden lg:block"
+            className="relative h-96 md:h-[500px] hidden lg:flex items-center justify-center"
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
           >
-            {/* Card 1 */}
             <motion.div
-              className="absolute left-0 top-10 w-64 aspect-[3/4] rounded-2xl overflow-hidden glass-effect-strong shadow-2xl"
+              className="absolute left-0 top-10 w-64 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl backdrop-blur-md border border-cyan-500/20"
               animate={{ y: [0, -10, 0], rotate: [-2, 0, -2] }}
               transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY }}
               whileHover={{ scale: 1.05, rotate: 0 }}
             >
-              <img
-                src={photos[0] || "/placeholder.svg"}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
+              <img src={photos[0] || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
             </motion.div>
 
-            {/* Card 2 */}
             <motion.div
-              className="absolute right-0 bottom-0 w-56 aspect-[3/4] rounded-2xl overflow-hidden glass-effect shadow-2xl"
+              className="absolute right-0 bottom-0 w-56 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl backdrop-blur-md border border-cyan-500/20"
               animate={{ y: [0, 10, 0], rotate: [2, 0, 2] }}
               transition={{ duration: 5, repeat: Number.POSITIVE_INFINITY, delay: 0.5 }}
               whileHover={{ scale: 1.05, rotate: 0 }}
             >
-              <img
-                src={photos[1] || "/placeholder.svg"}
-                alt="Tech"
-                className="w-full h-full object-cover"
-              />
+              <img src={photos[1] || "/placeholder.svg"} alt="Tech" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
             </motion.div>
           </motion.div>
@@ -385,9 +379,8 @@ const StaticPortfolio = ({ portfolioData }) => {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-24 px-4 relative">
+      <section id="about" className="py-24 px-4">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          {/* Image */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -395,17 +388,16 @@ const StaticPortfolio = ({ portfolioData }) => {
             transition={{ duration: 0.7 }}
             className="relative"
           >
-            <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden glass-effect-strong shadow-2xl group">
+            <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl backdrop-blur-md border border-cyan-500/20 group">
               <img
                 src={safeData.profileImage || "/placeholder.svg"}
                 alt={safeData.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
             </div>
           </motion.div>
 
-          {/* Content */}
           <motion.div
             initial={{ opacity: 0, x: 40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -415,14 +407,12 @@ const StaticPortfolio = ({ portfolioData }) => {
           >
             <div>
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                <span className="gradient-text">About Me</span>
+                <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">About Me</span>
               </h2>
               <div className="h-1 w-20 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full" />
             </div>
 
-            <p className="text-lg text-gray-300 leading-relaxed">
-              {safeData.longBio}
-            </p>
+            <p className="text-lg text-gray-300 leading-relaxed">{safeData.longBio}</p>
 
             <div>
               <h3 className="text-xl font-semibold mb-4 text-cyan-400">Core Skills</h3>
@@ -450,7 +440,7 @@ const StaticPortfolio = ({ portfolioData }) => {
       </section>
 
       {/* Skills Section */}
-      <section id="skills" className="py-24 px-4 relative">
+      <section id="skills" className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -459,7 +449,7 @@ const StaticPortfolio = ({ portfolioData }) => {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="gradient-text">Technical Skills</span>
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Technical Skills</span>
             </h2>
             <div className="h-1 w-20 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full mx-auto" />
           </motion.div>
@@ -474,12 +464,10 @@ const StaticPortfolio = ({ portfolioData }) => {
             {safeData.skillCategories?.map((category, i) => (
               <motion.div
                 key={category.name + i}
-                className="glass-effect-strong p-6 rounded-xl hover-lift group"
+                className="p-6 rounded-xl bg-slate-800/50 backdrop-blur-md border border-cyan-500/20 hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10"
                 variants={fadeInUp}
               >
-                <h3 className="text-xl font-semibold mb-6 text-cyan-400 group-hover:text-cyan-300 transition-colors">
-                  {category.name}
-                </h3>
+                <h3 className="text-xl font-semibold mb-6 text-cyan-400">{category.name}</h3>
                 <div className="space-y-4">
                   {category.skills?.map((skill, idx) => (
                     <div key={skill.name + idx}>
@@ -506,7 +494,7 @@ const StaticPortfolio = ({ portfolioData }) => {
       </section>
 
       {/* Experience Section */}
-      <section id="experience" className="py-24 px-4 relative">
+      <section id="experience" className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -515,7 +503,7 @@ const StaticPortfolio = ({ portfolioData }) => {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="gradient-text">Work Experience</span>
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Work Experience</span>
             </h2>
             <div className="h-1 w-20 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full mx-auto" />
           </motion.div>
@@ -533,12 +521,12 @@ const StaticPortfolio = ({ portfolioData }) => {
                 >
                   <motion.div
                     className="absolute -left-4 top-1 w-6 h-6 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/50"
+                    initial={{ scale: 0 }}
                     whileInView={{ scale: 1 }}
                     viewport={{ once: true }}
-                    initial={{ scale: 0 }}
                     transition={{ delay: 0.2 + i * 0.1 }}
                   />
-                  <div className="glass-effect-strong p-6 rounded-xl group hover-lift">
+                  <div className="p-6 rounded-xl bg-slate-800/50 backdrop-blur-md border border-cyan-500/20 hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10">
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="text-xl font-semibold text-cyan-400">{exp.role}</h3>
                       <span className="text-xs px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
@@ -568,7 +556,7 @@ const StaticPortfolio = ({ portfolioData }) => {
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-24 px-4 relative">
+      <section id="projects" className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -577,7 +565,7 @@ const StaticPortfolio = ({ portfolioData }) => {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="gradient-text">Projects</span>
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Projects</span>
             </h2>
             <div className="h-1 w-20 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full mx-auto" />
           </motion.div>
@@ -593,14 +581,14 @@ const StaticPortfolio = ({ portfolioData }) => {
               {safeData.projects.map((project, i) => (
                 <motion.div
                   key={project.title + i}
-                  className="glass-effect-strong rounded-xl overflow-hidden hover-lift group"
+                  className="rounded-xl overflow-hidden bg-slate-800/50 backdrop-blur-md border border-cyan-500/20 hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10"
                   variants={fadeInUp}
                 >
                   <div className="aspect-video relative overflow-hidden bg-slate-800">
                     <img
                       src={project.image || "/placeholder.svg"}
                       alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
                   </div>
@@ -624,8 +612,7 @@ const StaticPortfolio = ({ portfolioData }) => {
                         rel="noopener noreferrer"
                         className="inline-flex items-center text-cyan-400 hover:text-cyan-300 transition-colors"
                       >
-                        View Project
-                        <ArrowRight className="h-4 w-4 ml-2" />
+                        View Project <ArrowRight className="h-4 w-4 ml-2" />
                       </a>
                     )}
                   </div>
@@ -642,7 +629,7 @@ const StaticPortfolio = ({ portfolioData }) => {
       <CertificationSection certifications={safeData.certifications} />
 
       {/* Contact Section */}
-      <section id="contact" className="py-24 px-4 relative">
+      <section id="contact" className="py-24 px-4">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -651,7 +638,7 @@ const StaticPortfolio = ({ portfolioData }) => {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="gradient-text">Get In Touch</span>
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Get In Touch</span>
             </h2>
             <div className="h-1 w-20 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full mx-auto" />
           </motion.div>
@@ -660,7 +647,7 @@ const StaticPortfolio = ({ portfolioData }) => {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="glass-effect-strong p-8 md:p-12 rounded-2xl"
+            className="p-8 md:p-12 rounded-2xl bg-slate-800/50 backdrop-blur-md border border-cyan-500/20"
           >
             <div className="grid md:grid-cols-2 gap-12">
               <div className="space-y-6">
@@ -669,84 +656,29 @@ const StaticPortfolio = ({ portfolioData }) => {
 
                 <div className="space-y-4">
                   {safeData.contact?.email && (
-                    <motion.div
-                      className="flex items-center gap-4"
-                      whileHover={{ x: 4 }}
-                    >
-                      <div className="p-3 rounded-full bg-cyan-500/10 text-cyan-400">
-                        <Mail size={20} />
-                      </div>
-                      <a href={`mailto:${safeData.contact.email}`} className="text-gray-300 hover:text-cyan-400 transition-colors">
-                        {safeData.contact.email}
-                      </a>
+                    <motion.div className="flex items-center gap-4" whileHover={{ x: 4 }}>
+                      <div className="p-3 rounded-full bg-cyan-500/10 text-cyan-400"><Mail size={20} /></div>
+                      <a href={`mailto:${safeData.contact.email}`} className="text-gray-300 hover:text-cyan-400 transition-colors">{safeData.contact.email}</a>
                     </motion.div>
                   )}
                   {safeData.contact?.phone && (
                     <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-full bg-cyan-500/10 text-cyan-400">
-                        <Phone size={20} />
-                      </div>
+                      <div className="p-3 rounded-full bg-cyan-500/10 text-cyan-400"><Phone size={20} /></div>
                       <span className="text-gray-300">{safeData.contact.phone}</span>
                     </div>
                   )}
                   {safeData.contact?.location && (
                     <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-full bg-cyan-500/10 text-cyan-400">
-                        <MapPin size={20} />
-                      </div>
+                      <div className="p-3 rounded-full bg-cyan-500/10 text-cyan-400"><MapPin size={20} /></div>
                       <span className="text-gray-300">{safeData.contact.location}</span>
                     </div>
                   )}
                 </div>
-
-                <div className="flex gap-3 pt-4">
-                  {safeData.socialLinks?.github && (
-                    <a href={safeData.socialLinks.github} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800 text-cyan-400 hover:bg-cyan-500/10 transition-all">
-                      <Github size={20} />
-                    </a>
-                  )}
-                  {safeData.socialLinks?.linkedin && (
-                    <a href={safeData.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800 text-cyan-400 hover:bg-cyan-500/10 transition-all">
-                      <Linkedin size={20} />
-                    </a>
-                  )}
-                </div>
               </div>
 
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-300">Name</label>
-                  <input
-                    type="text"
-                    placeholder="Your name"
-                    className="w-full px-4 py-2 rounded-lg bg-slate-800/50 border border-cyan-500/20 text-gray-300 placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-300">Email</label>
-                  <input
-                    type="email"
-                    placeholder="Your email"
-                    className="w-full px-4 py-2 rounded-lg bg-slate-800/50 border border-cyan-500/20 text-gray-300 placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-300">Message</label>
-                  <textarea
-                    rows={4}
-                    placeholder="Your message"
-                    className="w-full px-4 py-2 rounded-lg bg-slate-800/50 border border-cyan-500/20 text-gray-300 placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors resize-none"
-                  />
-                </div>
-                <motion.button
-                  type="submit"
-                  className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all"
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Send Message
-                </motion.button>
-              </form>
+              <div className="text-gray-400">
+                <p>Message form would go here. Contact information is displayed above.</p>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -785,13 +717,11 @@ export default function ClientPage({ portfolioData }) {
     return () => clearTimeout(timer)
   }, [])
 
+  if (!isClient) return null
+
   return (
     <AnimatePresence mode="wait">
-      {isLoading || !isClient ? (
-        <Enhanced3DLoader />
-      ) : (
-        <StaticPortfolio portfolioData={portfolioData} />
-      )}
+      {isLoading ? <Enhanced3DLoader /> : <StaticPortfolio portfolioData={portfolioData} />}
     </AnimatePresence>
   )
 }
