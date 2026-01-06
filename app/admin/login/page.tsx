@@ -7,16 +7,6 @@ import { motion } from "framer-motion"
 import { Eye, EyeOff, LogIn, Lock, Mail } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
-declare global {
-  interface Window {
-    turnstile: {
-      render: (selector: string, options: any) => void
-      getResponse: (containerId: string) => string | undefined
-      reset: (containerId: string) => void
-    }
-  }
-}
-
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
@@ -24,9 +14,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [isPreview, setIsPreview] = useState(false)
   const [particles, setParticles] = useState([])
-  const [isCaptchaReady, setIsCaptchaReady] = useState(false)
 
   useEffect(() => {
     const newParticles = Array.from({ length: 20 }, (_, i) => ({
@@ -39,63 +27,33 @@ export default function LoginPage() {
       color: `hsl(${Math.random() * 60 + 200}, 70%, 60%)`,
     }))
     setParticles(newParticles)
-
-    const script = document.createElement("script")
-    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"
-    script.async = true
-    script.defer = true
-    script.onload = () => {
-      if (window.turnstile) {
-        window.turnstile.render("#cf-turnstile", {
-          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITEKEY || "1x00000000000000000000AA",
-          theme: "light",
-          size: "normal",
-        })
-        setIsCaptchaReady(true)
-      }
-    }
-    document.head.appendChild(script)
-
-    return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script)
-      }
-    }
   }, [])
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
 
     try {
-      const captchaToken = window.turnstile?.getResponse("cf-turnstile")
-      if (!captchaToken) {
-        setError("Please complete the CAPTCHA verification")
-        setIsLoading(false)
-        return
-      }
+      console.log("[v0] Starting login with email:", email)
 
       const supabase = createClient()
-      const { error: authError } = await supabase.auth.signInWithPassword({
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          captchaToken,
-        },
       })
+
+      console.log("[v0] Auth response:", { data, authError })
 
       if (authError) {
         throw authError
       }
 
+      console.log("[v0] Login successful, redirecting to admin")
       router.push("/admin")
       router.refresh()
-    } catch (error) {
-      console.error("Login error:", error)
-      if (window.turnstile) {
-        window.turnstile.reset("cf-turnstile")
-      }
+    } catch (error: any) {
+      console.error("[v0] Login error:", error)
       setError(error.message || "Invalid email or password")
     } finally {
       setIsLoading(false)
@@ -155,11 +113,6 @@ export default function LoginPage() {
             Admin Login
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">Enter your credentials to access the admin dashboard</p>
-          {isPreview && (
-            <div className="mt-2 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 p-2 rounded">
-              Preview Mode: Click Login to continue to the admin dashboard
-            </div>
-          )}
         </motion.div>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
@@ -212,11 +165,10 @@ export default function LoginPage() {
                 </button>
               </div>
             </motion.div>
-            <motion.div id="cf-turnstile" variants={itemVariants} className="flex justify-center"></motion.div>
             <motion.button
               type="submit"
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-md transition-all flex justify-center items-center gap-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isLoading || !isCaptchaReady}
+              disabled={isLoading}
               variants={itemVariants}
               whileHover={{ scale: 1.02, boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)" }}
               whileTap={{ scale: 0.98 }}
