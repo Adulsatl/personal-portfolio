@@ -34,9 +34,14 @@ export async function uploadFile(file, folder = "general") {
 
     // Upload file to Supabase Storage
     console.log("Uploading to Supabase storage:", filePath)
+
+    // This fixes the "e.getAll is not a function" error which is often caused by
+    // internal fetch processing in the Supabase SDK when handling complex file objects
+    const fileToUpload = file instanceof File ? file : buffer
+
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from("portfolio")
-      .upload(filePath, buffer, {
+      .upload(filePath, fileToUpload, {
         contentType: file.type || "application/octet-stream",
         upsert: true,
       })

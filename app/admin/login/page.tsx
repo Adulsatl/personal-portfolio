@@ -1,26 +1,34 @@
 "use client"
 import { useState, useEffect } from "react"
 import type React from "react"
-
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Eye, EyeOff, LogIn, Lock, Mail } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
+
+declare global {
+  interface Window {
+    turnstile: {
+      render: (selector: string, options: any) => void
+      getResponse: (containerId: string) => string | undefined
+      reset: (containerId: string) => void
+    }
+  }
+}
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState("usernam") // Pre-filled for demo
-  const [password, setPassword] = useState("password") // Pre-filled for demo
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isPreview, setIsPreview] = useState(false)
-
-  // Background animation elements
   const [particles, setParticles] = useState([])
+  const [isCaptchaReady, setIsCaptchaReady] = useState(false)
 
   useEffect(() => {
-    // Generate random particles for background
     const newParticles = Array.from({ length: 20 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
@@ -31,6 +39,28 @@ export default function LoginPage() {
       color: `hsl(${Math.random() * 60 + 200}, 70%, 60%)`,
     }))
     setParticles(newParticles)
+
+    const script = document.createElement("script")
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"
+    script.async = true
+    script.defer = true
+    script.onload = () => {
+      if (window.turnstile) {
+        window.turnstile.render("#cf-turnstile", {
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITEKEY || "1x00000000000000000000AA",
+          theme: "light",
+          size: "normal",
+        })
+        setIsCaptchaReady(true)
+      }
+    }
+    document.head.appendChild(script)
+
+    return () => {
+      if (script.parentNode) {
+        script.parentNode.removeChild(script)
+      }
+    }
   }, [])
 
   const handleSubmit = async (e) => {
@@ -39,43 +69,34 @@ export default function LoginPage() {
     setError("")
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const captchaToken = window.turnstile?.getResponse("cf-turnstile")
+      if (!captchaToken) {
+        setError("Please complete the CAPTCHA verification")
+        setIsLoading(false)
+        return
+      }
+
+      const supabase = createClient()
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+        options: {
+          captchaToken,
         },
-        body: JSON.stringify({ email, password }),
-        // Add cache: 'no-store' to prevent caching issues
-        cache: "no-store",
-      }).catch((err) => {
-        console.error("Network error:", err)
-        throw new Error("Network error. Please check your connection.")
       })
 
-      if (!response) {
-        throw new Error("Failed to connect to the server")
+      if (authError) {
+        throw authError
       }
 
-      // Handle non-JSON responses
-      const contentType = response.headers.get("content-type")
-      let data
-
-      if (!contentType || !contentType.includes("application/json")) {
-        const text = await response.text()
-        console.error("Non-JSON response:", text)
-        throw new Error("Server returned an invalid response")
-      } else {
-        data = await response.json()
-      }
-
-      if (response.ok) {
-        router.push("/admin")
-      } else {
-        setError(data.error || "Invalid email or password")
-      }
+      router.push("/admin")
+      router.refresh()
     } catch (error) {
       console.error("Login error:", error)
-      setError(error.message || "An error occurred. Please try again.")
+      if (window.turnstile) {
+        window.turnstile.reset("cf-turnstile")
+      }
+      setError(error.message || "Invalid email or password")
     } finally {
       setIsLoading(false)
     }
@@ -100,13 +121,9 @@ export default function LoginPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900 px-4 relative overflow-hidden">
-      {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Gradient orbs */}
         <div className="absolute top-1/4 -left-20 w-72 h-72 bg-blue-500/20 dark:bg-blue-500/10 rounded-full blur-3xl animate-blob"></div>
         <div className="absolute bottom-1/4 -right-20 w-72 h-72 bg-cyan-500/20 dark:bg-cyan-500/10 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
-
-        {/* Particles */}
         <div className="particles">
           {particles.map((particle) => (
             <div
@@ -125,11 +142,8 @@ export default function LoginPage() {
             ></div>
           ))}
         </div>
-
-        {/* Grid pattern */}
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] dark:opacity-[0.03]"></div>
       </div>
-
       <motion.div
         className="w-full max-w-md bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-lg shadow-xl p-8 border border-gray-200 dark:border-gray-700 relative z-10"
         variants={containerVariants}
@@ -198,10 +212,11 @@ export default function LoginPage() {
                 </button>
               </div>
             </motion.div>
+            <motion.div id="cf-turnstile" variants={itemVariants} className="flex justify-center"></motion.div>
             <motion.button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-md transition-all flex justify-center items-center gap-2 shadow-md"
-              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-md transition-all flex justify-center items-center gap-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading || !isCaptchaReady}
               variants={itemVariants}
               whileHover={{ scale: 1.02, boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)" }}
               whileTap={{ scale: 0.98 }}
