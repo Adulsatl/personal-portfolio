@@ -1,4 +1,5 @@
 "use client"
+
 import { useState, useEffect } from "react"
 import type React from "react"
 import { useRouter } from "next/navigation"
@@ -6,12 +7,6 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { Eye, EyeOff, LogIn, Lock, Mail } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-
-declare global {
-  interface Window {
-    turnstile: any
-  }
-}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -21,7 +16,6 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [particles, setParticles] = useState([])
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
 
   useEffect(() => {
     const newParticles = Array.from({ length: 20 }, (_, i) => ({
@@ -34,44 +28,6 @@ export default function LoginPage() {
       color: `hsl(${Math.random() * 60 + 200}, 70%, 60%)`,
     }))
     setParticles(newParticles)
-
-    const script = document.createElement("script")
-    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"
-    script.async = true
-    script.defer = true
-    document.head.appendChild(script)
-
-    return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script)
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (window.turnstile) {
-        const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITEKEY
-        if (siteKey && !document.querySelector("[data-turnstile-rendered]")) {
-          window.turnstile.render("#turnstile-container", {
-            sitekey: siteKey,
-            theme: "light",
-            callback: (token: string) => {
-              console.log("[v0] Turnstile token received")
-              setCaptchaToken(token)
-            },
-            "error-callback": () => {
-              console.log("[v0] Turnstile error")
-              setCaptchaToken(null)
-            },
-          })
-          document.querySelector("#turnstile-container")?.setAttribute("data-turnstile-rendered", "true")
-        }
-        clearInterval(interval)
-      }
-    }, 100)
-
-    return () => clearInterval(interval)
   }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -82,27 +38,16 @@ export default function LoginPage() {
     try {
       console.log("[v0] Starting login with email:", email)
 
-      if (!captchaToken) {
-        throw new Error("Please complete the CAPTCHA verification")
-      }
-
       const supabase = createClient()
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          captchaToken,
-        },
       })
 
       console.log("[v0] Auth response:", { data, authError })
 
       if (authError) {
         console.log("[v0] Auth error:", authError.message)
-        if (window.turnstile) {
-          window.turnstile.reset()
-        }
-        setCaptchaToken(null)
         throw authError
       }
 
@@ -222,7 +167,6 @@ export default function LoginPage() {
                 </button>
               </div>
             </motion.div>
-            <motion.div id="turnstile-container" className="relative" variants={itemVariants}></motion.div>
             <motion.button
               type="submit"
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-md transition-all flex justify-center items-center gap-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
