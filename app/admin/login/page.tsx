@@ -7,6 +7,12 @@ import { motion } from "framer-motion"
 import { Eye, EyeOff, LogIn, Lock, Mail } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
+declare global {
+  interface Window {
+    turnstile: any
+  }
+}
+
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
@@ -15,6 +21,8 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [particles, setParticles] = useState([])
+  const [captchaToken, setCaptchaToken] = useState("")
+  const [captchaReady, setCaptchaReady] = useState(false)
 
   useEffect(() => {
     const newParticles = Array.from({ length: 20 }, (_, i) => ({
@@ -27,6 +35,31 @@ export default function LoginPage() {
       color: `hsl(${Math.random() * 60 + 200}, 70%, 60%)`,
     }))
     setParticles(newParticles)
+
+    const script = document.createElement("script")
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"
+    script.async = true
+    script.defer = true
+    document.head.appendChild(script)
+
+    script.onload = () => {
+      if (window.turnstile) {
+        window.turnstile.render("#captcha-container", {
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITEKEY || "1x00000000000000000000AA",
+          callback: (token: string) => {
+            setCaptchaToken(token)
+          },
+          "error-callback": () => {
+            setCaptchaToken("")
+          },
+        })
+        setCaptchaReady(true)
+      }
+    }
+
+    return () => {
+      document.head.removeChild(script)
+    }
   }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -35,17 +68,31 @@ export default function LoginPage() {
     setError("")
 
     try {
+      if (!captchaToken) {
+        setError("Please complete the CAPTCHA verification")
+        setIsLoading(false)
+        return
+      }
+
       console.log("[v0] Starting login with email:", email)
 
       const supabase = createClient()
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
+        options: {
+          captchaToken, // Pass CAPTCHA token to Supabase
+        },
       })
 
       console.log("[v0] Auth response:", { data, authError })
 
       if (authError) {
+        console.log("[v0] Auth error:", authError.message)
+        if (window.turnstile) {
+          window.turnstile.reset()
+        }
+        setCaptchaToken("")
         throw authError
       }
 
@@ -53,7 +100,7 @@ export default function LoginPage() {
       router.push("/admin")
       router.refresh()
     } catch (error: any) {
-      console.error("[v0] Login error:", error)
+      console.error("[v0] Login error:", error.message)
       setError(error.message || "Invalid email or password")
     } finally {
       setIsLoading(false)
@@ -165,10 +212,15 @@ export default function LoginPage() {
                 </button>
               </div>
             </motion.div>
+            <motion.div
+              variants={itemVariants}
+              id="captcha-container"
+              className="flex justify-center py-2"
+            ></motion.div>
             <motion.button
               type="submit"
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-md transition-all flex justify-center items-center gap-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isLoading}
+              disabled={isLoading || !captchaToken}
               variants={itemVariants}
               whileHover={{ scale: 1.02, boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)" }}
               whileTap={{ scale: 0.98 }}
