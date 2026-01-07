@@ -21,8 +21,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [particles, setParticles] = useState([])
-  const [captchaToken, setCaptchaToken] = useState("")
-  const [captchaReady, setCaptchaReady] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
 
   useEffect(() => {
     const newParticles = Array.from({ length: 20 }, (_, i) => ({
@@ -42,24 +41,37 @@ export default function LoginPage() {
     script.defer = true
     document.head.appendChild(script)
 
-    script.onload = () => {
-      if (window.turnstile) {
-        window.turnstile.render("#captcha-container", {
-          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITEKEY || "1x00000000000000000000AA",
-          callback: (token: string) => {
-            setCaptchaToken(token)
-          },
-          "error-callback": () => {
-            setCaptchaToken("")
-          },
-        })
-        setCaptchaReady(true)
+    return () => {
+      if (script.parentNode) {
+        script.parentNode.removeChild(script)
       }
     }
+  }, [])
 
-    return () => {
-      document.head.removeChild(script)
-    }
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (window.turnstile) {
+        const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITEKEY
+        if (siteKey && !document.querySelector("[data-turnstile-rendered]")) {
+          window.turnstile.render("#turnstile-container", {
+            sitekey: siteKey,
+            theme: "light",
+            callback: (token: string) => {
+              console.log("[v0] Turnstile token received")
+              setCaptchaToken(token)
+            },
+            "error-callback": () => {
+              console.log("[v0] Turnstile error")
+              setCaptchaToken(null)
+            },
+          })
+          document.querySelector("#turnstile-container")?.setAttribute("data-turnstile-rendered", "true")
+        }
+        clearInterval(interval)
+      }
+    }, 100)
+
+    return () => clearInterval(interval)
   }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -68,20 +80,18 @@ export default function LoginPage() {
     setError("")
 
     try {
-      if (!captchaToken) {
-        setError("Please complete the CAPTCHA verification")
-        setIsLoading(false)
-        return
-      }
-
       console.log("[v0] Starting login with email:", email)
+
+      if (!captchaToken) {
+        throw new Error("Please complete the CAPTCHA verification")
+      }
 
       const supabase = createClient()
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
         options: {
-          captchaToken, // Pass CAPTCHA token to Supabase
+          captchaToken,
         },
       })
 
@@ -92,7 +102,7 @@ export default function LoginPage() {
         if (window.turnstile) {
           window.turnstile.reset()
         }
-        setCaptchaToken("")
+        setCaptchaToken(null)
         throw authError
       }
 
@@ -212,15 +222,11 @@ export default function LoginPage() {
                 </button>
               </div>
             </motion.div>
-            <motion.div
-              variants={itemVariants}
-              id="captcha-container"
-              className="flex justify-center py-2"
-            ></motion.div>
+            <motion.div id="turnstile-container" className="relative" variants={itemVariants}></motion.div>
             <motion.button
               type="submit"
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-md transition-all flex justify-center items-center gap-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isLoading || !captchaToken}
+              disabled={isLoading}
               variants={itemVariants}
               whileHover={{ scale: 1.02, boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)" }}
               whileTap={{ scale: 0.98 }}
