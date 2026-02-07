@@ -1,18 +1,18 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Star, ChevronLeft, ChevronRight, Linkedin } from 'lucide-react'
+import { getTestimonials } from '@/lib/data-service'
 
 interface Recommendation {
   id: string
   name: string
-  role: string
+  title: string
   company: string
-  content: string
+  message: string
   rating: number
-  image?: string
-  date: string
+  linkedin_url?: string
 }
 
 interface RecommendationsGalleryProps {
@@ -23,46 +23,66 @@ const defaultRecommendations: Recommendation[] = [
   {
     id: '1',
     name: 'Mohammed Al-Mansouri',
-    role: 'IT Director',
+    title: 'IT Director',
     company: 'Dubai Tech Solutions',
-    content:
+    message:
       'Exceptional IT administrator with outstanding expertise in infrastructure management. Highly professional and reliable.',
     rating: 5,
-    date: '2024',
   },
   {
     id: '2',
     name: 'Sarah Johnson',
-    role: 'Infrastructure Manager',
+    title: 'Infrastructure Manager',
     company: 'Emirates Enterprise',
-    content:
+    message:
       'Outstanding problem-solving skills and deep technical knowledge. Always ready to support team and exceed expectations.',
     rating: 5,
-    date: '2024',
   },
   {
     id: '3',
     name: 'Ahmed Al-Zaabi',
-    role: 'CTO',
+    title: 'CTO',
     company: 'Digital Arabia Inc',
-    content:
+    message:
       'Demonstrates excellent system administration capabilities. Proactive in security and performance optimization.',
     rating: 5,
-    date: '2023',
   },
 ]
 
 export const RecommendationsGallery: React.FC<RecommendationsGalleryProps> = ({
-  recommendations = defaultRecommendations,
+  recommendations: initialRecommendations,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [testimonials, setTestimonials] = useState<Recommendation[]>(initialRecommendations || defaultRecommendations)
+  const [isLoading, setIsLoading] = useState(!initialRecommendations)
+  const recommendations = testimonials; // Declare recommendations variable
+
+  // Fetch testimonials from database on mount
+  useEffect(() => {
+    if (!initialRecommendations) {
+      const fetchTestimonials = async () => {
+        try {
+          const data = await getTestimonials()
+          if (data && data.length > 0) {
+            setTestimonials(data)
+          }
+        } catch (error) {
+          console.error('Error fetching testimonials:', error)
+          setTestimonials(defaultRecommendations)
+        } finally {
+          setIsLoading(false)
+        }
+      }
+      fetchTestimonials()
+    }
+  }, [initialRecommendations])
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % recommendations.length)
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length)
   }
 
   const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + recommendations.length) % recommendations.length)
+    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)
   }
 
   const containerVariants = {
@@ -146,7 +166,7 @@ export const RecommendationsGallery: React.FC<RecommendationsGalleryProps> = ({
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="flex gap-1 mb-4"
               >
-                {[...Array(recommendations[currentIndex].rating)].map((_, i) => (
+                {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
                   <motion.div
                     key={i}
                     initial={{ scale: 0, rotate: -180 }}
@@ -165,7 +185,7 @@ export const RecommendationsGallery: React.FC<RecommendationsGalleryProps> = ({
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="text-slate-200 text-lg md:text-xl leading-relaxed mb-8 flex-grow"
               >
-                "{recommendations[currentIndex].content}"
+                "{testimonials[currentIndex].message}"
               </motion.p>
 
               {/* Author info */}
@@ -175,14 +195,27 @@ export const RecommendationsGallery: React.FC<RecommendationsGalleryProps> = ({
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="border-t border-slate-700/50 pt-6"
               >
-                <p className="font-semibold text-cyan-300 text-lg">
-                  {recommendations[currentIndex].name}
-                </p>
-                <p className="text-slate-400 text-sm">
-                  {recommendations[currentIndex].role} at{' '}
-                  <span className="text-cyan-400">{recommendations[currentIndex].company}</span>
-                </p>
-                <p className="text-slate-500 text-xs mt-1">{recommendations[currentIndex].date}</p>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-semibold text-cyan-300 text-lg">
+                      {testimonials[currentIndex].name}
+                    </p>
+                    <p className="text-slate-400 text-sm">
+                      {testimonials[currentIndex].title} {testimonials[currentIndex].company && `at ${testimonials[currentIndex].company}`}
+                    </p>
+                  </div>
+                  {testimonials[currentIndex].linkedin_url && (
+                    <motion.a
+                      href={testimonials[currentIndex].linkedin_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ scale: 1.1 }}
+                      className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                    >
+                      <Linkedin className="w-5 h-5" />
+                    </motion.a>
+                  )}
+                </div>
               </motion.div>
             </div>
           </motion.div>
@@ -198,7 +231,7 @@ export const RecommendationsGallery: React.FC<RecommendationsGalleryProps> = ({
             whileInView="visible"
             viewport={{ once: true }}
           >
-            {recommendations.map((_, index) => (
+            {testimonials.map((_, index) => (
               <motion.button
                 key={index}
                 onClick={() => setCurrentIndex(index)}

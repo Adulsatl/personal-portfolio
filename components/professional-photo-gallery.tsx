@@ -1,29 +1,61 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { getGalleryPhotos } from '@/lib/data-service'
+
+interface Photo {
+  id?: string
+  title: string
+  description?: string
+  image_url: string
+  category?: string
+}
 
 interface PhotoGalleryProps {
-  photos?: string[]
+  photos?: (string | Photo)[]
   title?: string
   description?: string
 }
 
 export default function ProfessionalPhotoGallery({
-  photos = [
-    '/professional-it-administrator.jpg',
-    '/server-room-administration.jpg',
-    '/modern-office-workspace.jpg',
-    '/network-infrastructure.jpg',
-    '/technical-setup.jpg',
-    '/it-administrator-datacenter.jpg',
-  ],
+  photos: initialPhotos,
   title = 'Professional Gallery',
   description = 'Enterprise IT infrastructure and professional work environment',
 }: PhotoGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
-  const validPhotos = Array.isArray(photos) && photos.length > 0 ? photos.slice(0, 6) : photos
+  const [galleryPhotos, setGalleryPhotos] = useState<Photo[]>([])
+  const [isLoading, setIsLoading] = useState(!initialPhotos)
+
+  // Fetch photos from database on mount
+  useEffect(() => {
+    if (!initialPhotos) {
+      const fetchPhotos = async () => {
+        try {
+          const data = await getGalleryPhotos()
+          if (data && data.length > 0) {
+            setGalleryPhotos(data)
+          }
+        } catch (error) {
+          console.error('Error fetching gallery photos:', error)
+        } finally {
+          setIsLoading(false)
+        }
+      }
+      fetchPhotos()
+    } else {
+      // Convert string array to Photo objects for consistent handling
+      const convertedPhotos = initialPhotos.map((photo, idx) => 
+        typeof photo === 'string' 
+          ? { title: `Photo ${idx + 1}`, image_url: photo } 
+          : photo
+      )
+      setGalleryPhotos(convertedPhotos as Photo[])
+    }
+  }, [initialPhotos])
+
+  const validPhotos = galleryPhotos.slice(0, 6)
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -107,7 +139,7 @@ export default function ProfessionalPhotoGallery({
       >
         {validPhotos.map((photo, index) => (
           <motion.div
-            key={`${photo}-${index}`}
+            key={`${photo.id || photo.image_url}-${index}`}
             variants={itemVariants}
             className="group cursor-pointer"
             onClick={() => setSelectedIndex(index)}
@@ -119,13 +151,13 @@ export default function ProfessionalPhotoGallery({
               {/* Image Container */}
               <div className="aspect-[4/3] overflow-hidden bg-slate-950">
                 <motion.img
-                  src={photo}
-                  alt={`Professional gallery photo ${index + 1}`}
+                  src={photo.image_url}
+                  alt={photo.title || `Professional gallery photo ${index + 1}`}
                   className="w-full h-full object-cover"
                   whileHover={{ scale: 1.08 }}
                   transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
                   onError={(e) => {
-                    e.currentTarget.src = '/abstract-geometric-shapes.png'
+                    e.currentTarget.src = '/placeholder.svg'
                   }}
                 />
               </div>
@@ -197,16 +229,42 @@ export default function ProfessionalPhotoGallery({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-4xl max-h-[80vh] rounded-2xl overflow-hidden border border-cyan-400/30"
+            className="relative w-full max-w-4xl rounded-2xl overflow-hidden border border-cyan-400/30 bg-slate-950"
           >
-            <img
-              src={validPhotos[selectedIndex] || "/placeholder.svg"}
-              alt={`Gallery photo ${selectedIndex + 1}`}
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                e.currentTarget.src = '/abstract-geometric-shapes.png'
-              }}
-            />
+            <div className="max-h-[70vh] overflow-y-auto">
+              <img
+                src={validPhotos[selectedIndex]?.image_url || "/placeholder.svg"}
+                alt={validPhotos[selectedIndex]?.title || `Gallery photo ${selectedIndex + 1}`}
+                className="w-full h-auto object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = '/placeholder.svg'
+                }}
+              />
+            </div>
+            
+            {/* Photo Info */}
+            {validPhotos[selectedIndex]?.title && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="px-6 py-4 border-t border-slate-700/50 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur"
+              >
+                <h3 className="text-cyan-300 font-semibold text-lg mb-2">
+                  {validPhotos[selectedIndex].title}
+                </h3>
+                {validPhotos[selectedIndex]?.description && (
+                  <p className="text-slate-300 text-sm">
+                    {validPhotos[selectedIndex].description}
+                  </p>
+                )}
+                {validPhotos[selectedIndex]?.category && (
+                  <span className="inline-block mt-2 px-3 py-1 text-xs bg-cyan-500/20 text-cyan-300 rounded-full border border-cyan-500/30">
+                    {validPhotos[selectedIndex].category}
+                  </span>
+                )}
+              </motion.div>
+            )}
           </motion.div>
 
           {/* Navigation Buttons */}
