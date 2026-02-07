@@ -7,6 +7,7 @@ import CertificationSection from "@/components/certification-section"
 import ContactForm from "@/components/contact-form"
 import TechnologyLogos from "@/components/technology-logos"
 import RecommendationsGallery from "@/components/recommendations-gallery"
+import ProfessionalPhotoGallery from "@/components/professional-photo-gallery"
 
 function usePhotos(portfolioData?: any) {
   const uploaded = Array.isArray(portfolioData?.photos) ? portfolioData.photos : []
@@ -85,6 +86,7 @@ export const StaticPortfolio = ({ portfolioData }) => {
     { id: "projects", label: "Projects" },
     { id: "certifications", label: "Certifications" },
     { id: "recommendations", label: "Recommendations" },
+    { id: "gallery", label: "Gallery" },
     { id: "contact", label: "Contact" },
   ]
 
@@ -578,6 +580,24 @@ export const StaticPortfolio = ({ portfolioData }) => {
       <section id="recommendations" className="py-32 px-4 border-t border-cyan-500/10">
         <div className="max-w-6xl mx-auto">
           <RecommendationsGallery />
+        </div>
+      </section>
+
+      {/* Professional Photo Gallery */}
+      <section id="gallery" className="py-32 px-4 border-t border-cyan-500/10">
+        <div className="max-w-6xl mx-auto">
+          <ProfessionalPhotoGallery 
+            photos={[
+              "/professional-it-administrator.jpg",
+              "/server-room-administration.jpg",
+              "/modern-office-workspace.jpg",
+              "/network-infrastructure.jpg",
+              "/technical-setup.jpg",
+              "/it-administrator-datacenter.jpg",
+            ]}
+            title="Professional Workspace"
+            description="Enterprise IT environments, infrastructure setups, and professional workspaces"
+          />
         </div>
       </section>
 

@@ -108,13 +108,17 @@
     text-wrap: balance;
   }
 
-  /* Professional transitions */
+  /* Butter-smooth professional transitions */
   .transition-smooth {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .transition-butter {
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
   }
 
   .transition-fast {
-    transition: all 0.15s ease-out;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
   /* Premium glassmorphism for enterprise */
@@ -168,11 +172,11 @@
   }
 }
 
-/* Professional animations */
+/* Butter-smooth professional animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -183,7 +187,7 @@
 @keyframes fadeInDown {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-24px);
   }
   to {
     opacity: 1;
@@ -194,7 +198,7 @@
 @keyframes slideInLeft {
   from {
     opacity: 0;
-    transform: translateX(-24px);
+    transform: translateX(-32px);
   }
   to {
     opacity: 1;
@@ -205,7 +209,7 @@
 @keyframes slideInRight {
   from {
     opacity: 0;
-    transform: translateX(24px);
+    transform: translateX(32px);
   }
   to {
     opacity: 1;
@@ -216,9 +220,20 @@
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.9);
   }
   to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes smoothScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -245,31 +260,35 @@
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
+  animation: fadeInUp 0.7s cubic-bezier(0.23, 1, 0.320, 1) forwards;
 }
 
 .animate-fade-in-down {
-  animation: fadeInDown 0.6s ease-out forwards;
+  animation: fadeInDown 0.7s cubic-bezier(0.23, 1, 0.320, 1) forwards;
 }
 
 .animate-slide-in-left {
-  animation: slideInLeft 0.6s ease-out forwards;
+  animation: slideInLeft 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 .animate-slide-in-right {
-  animation: slideInRight 0.6s ease-out forwards;
+  animation: slideInRight 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 .animate-scale-in {
-  animation: scaleIn 0.5s ease-out forwards;
+  animation: scaleIn 0.6s cubic-bezier(0.23, 1, 0.320, 1) forwards;
+}
+
+.animate-smooth-scale {
+  animation: smoothScale 0.65s cubic-bezier(0.23, 1, 0.320, 1) forwards;
 }
 
 .animate-float {
-  animation: float 3s ease-in-out infinite;
+  animation: float 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .animate-glow-pulse {
-  animation: glow-pulse 2s ease-in-out infinite;
+  animation: glow-pulse 2.5s ease-in-out infinite;
 }
 
 /* Animation delays */

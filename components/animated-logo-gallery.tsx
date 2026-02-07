@@ -24,35 +24,37 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
+      staggerChildren: 0.08,
+      delayChildren: 0.15,
     },
   },
 }
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.8 },
+  hidden: { opacity: 0, y: 30, scale: 0.85 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
     transition: {
       type: 'spring',
-      stiffness: 100,
-      damping: 15,
+      stiffness: 80,
+      damping: 20,
+      mass: 1,
     },
   },
   hover: {
-    scale: 1.15,
-    y: -10,
+    scale: 1.12,
+    y: -12,
     transition: {
       type: 'spring',
-      stiffness: 200,
-      damping: 10,
+      stiffness: 150,
+      damping: 15,
+      mass: 0.8,
     },
   },
   tap: {
-    scale: 0.95,
+    scale: 0.92,
   },
 }
 
@@ -154,26 +156,35 @@ export const AnimatedLogoGallery: React.FC<AnimatedLogoGalleryProps> = ({
               </div>
 
               {/* Content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4">
-                {/* Icon container with pulse effect */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4">
+                {/* Icon container with smooth rotation */}
                 <motion.div
-                  className="text-4xl md:text-5xl"
+                  className="text-5xl md:text-6xl"
                   whileHover={{
-                    rotate: [0, -5, 5, -5, 5, 0],
-                    transition: { duration: 0.5 },
+                    rotate: [0, -8, 8, -6, 6, 0],
+                    transition: { duration: 0.6, ease: 'easeInOut' },
                   }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
                 >
                   {logo.icon}
                 </motion.div>
 
-                {/* Logo name with fade-in on hover */}
-                <motion.p
-                  initial={{ opacity: 0, y: 10 }}
-                  whileHover={{ opacity: 1, y: 0 }}
-                  className="text-xs md:text-sm font-semibold text-cyan-300 text-center truncate max-w-full"
-                >
-                  {logo.name}
-                </motion.p>
+                {/* Logo name - Always visible with smooth transitions */}
+                <motion.div className="text-center w-full">
+                  <p className="text-sm md:text-base font-bold text-cyan-300 text-center leading-tight whitespace-normal">
+                    {logo.name}
+                  </p>
+                  {logo.category && (
+                    <motion.p
+                      initial={{ opacity: 0, y: 5 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.1 }}
+                      className="text-xs text-slate-400 mt-1 capitalize"
+                    >
+                      {logo.category}
+                    </motion.p>
+                  )}
+                </motion.div>
               </div>
 
               {/* Top accent line animation */}
