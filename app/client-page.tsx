@@ -1,9 +1,12 @@
-'use client'
+"use client"
 
-import { useState, useEffect, useRef, useMemo } from "react"
-import { Menu, X, ArrowRight, Github, Linkedin, Mail, Phone, MapPin, Download, ChevronRight } from 'lucide-react'
+import { useState, useEffect, useMemo } from "react"
+import { Menu, X, Github, Linkedin, Mail, Phone, MapPin, ExternalLink, Code, Briefcase } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import CertificationSection from "@/components/certification-section"
+import ContactForm from "@/components/contact-form"
+import TechnologyLogos from "@/components/technology-logos"
+import RecommendationsGallery from "@/components/recommendations-gallery"
 
 function usePhotos(portfolioData?: any) {
   const uploaded = Array.isArray(portfolioData?.photos) ? portfolioData.photos : []
@@ -17,18 +20,17 @@ function usePhotos(portfolioData?: any) {
   return Array.from({ length: 5 }).map((_, i) => uploaded[i] || fallbacks[i])
 }
 
-// Enhanced 3D Loader
-const Enhanced3DLoader = () => {
+const EnhancedLoader = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950">
-      <div className="relative w-24 h-24">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-950 via-blue-950 to-slate-950">
+      <div className="relative w-20 h-20">
         <motion.div
           className="absolute inset-0 rounded-full border-2 border-transparent border-t-cyan-500 border-r-cyan-500"
           animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+          transition={{ duration: 2.5, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
         />
         <motion.div
-          className="absolute inset-4 rounded-full border-2 border-transparent border-b-blue-500 border-l-blue-500"
+          className="absolute inset-3 rounded-full border-2 border-transparent border-b-blue-500 border-l-blue-500"
           animate={{ rotate: -360 }}
           transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
         />
@@ -37,26 +39,27 @@ const Enhanced3DLoader = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="mt-6 text-cyan-400 font-medium text-lg"
+        className="mt-6 text-cyan-400 font-medium tracking-wider"
       >
-        Loading Portfolio...
+        Initializing Portfolio
       </motion.p>
     </div>
   )
 }
 
-// Main Portfolio Component
 export const StaticPortfolio = ({ portfolioData }) => {
   const photos = usePhotos(portfolioData)
-  
+
   const safeData = useMemo(
     () => ({
       name: portfolioData?.name || "Adul S.",
-      title: portfolioData?.title || "Junior IT Administrator",
-      shortBio: portfolioData?.shortBio || "Passionate IT administrator with expertise in network management and infrastructure support.",
+      title: portfolioData?.title || "IT Administrator",
+      shortBio:
+        portfolioData?.shortBio ||
+        "Professional IT Administrator with expertise in infrastructure and systems management.",
       longBio:
         portfolioData?.longBio ||
-        "I'm a dedicated IT professional with expertise in system administration, network management, and infrastructure optimization.",
+        "Experienced IT professional dedicated to designing and maintaining secure, efficient IT infrastructure solutions.",
       profileImage: portfolioData?.profileImage || photos[0],
       cvUrl: portfolioData?.cvUrl || "#",
       coreSkills: portfolioData?.coreSkills || ["Windows Server", "Linux Administration", "Network Management"],
@@ -81,18 +84,17 @@ export const StaticPortfolio = ({ portfolioData }) => {
     { id: "experience", label: "Experience" },
     { id: "projects", label: "Projects" },
     { id: "certifications", label: "Certifications" },
+    { id: "recommendations", label: "Recommendations" },
     { id: "contact", label: "Contact" },
   ]
 
-  // Scroll detection and hydration fix
   useEffect(() => {
     setIsMounted(true)
-    
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY
       setScrollY(currentScrollY)
 
-      // Detect active section
       for (const section of sections) {
         const el = document.getElementById(section.id)
         if (!el) continue
@@ -114,7 +116,6 @@ export const StaticPortfolio = ({ portfolioData }) => {
     window.scrollTo({ top: el.offsetTop - 80, behavior: "smooth" })
   }
 
-  // Animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
@@ -125,28 +126,14 @@ export const StaticPortfolio = ({ portfolioData }) => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.08,
         delayChildren: 0.1,
       },
     },
   }
 
   if (!isMounted) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-        <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-cyan-500/10">
-          <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="#hero" className="font-bold text-2xl text-cyan-400">{safeData.name}</a>
-            <nav className="hidden md:flex gap-8">
-              {sections.map((section) => (
-                <button key={section.id} className="text-sm font-medium text-gray-300 hover:text-cyan-400">{section.label}</button>
-              ))}
-            </nav>
-            <button className="md:hidden p-2"><Menu size={24} /></button>
-          </div>
-        </header>
-      </div>
-    )
+    return <EnhancedLoader />
   }
 
   return (
@@ -156,74 +143,66 @@ export const StaticPortfolio = ({ portfolioData }) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      {/* Background effects */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute top-20 -left-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"
+          className="absolute top-0 -left-64 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl"
           animate={{
-            x: [0, 20, -10, 0],
-            y: [0, -30, 10, 0],
+            x: [0, 30, -15, 0],
+            y: [0, -40, 20, 0],
           }}
-          transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+          transition={{ duration: 25, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute bottom-40 -right-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"
+          className="absolute bottom-0 -right-64 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"
           animate={{
-            x: [0, -20, 10, 0],
-            y: [0, 30, -10, 0],
+            x: [0, -30, 15, 0],
+            y: [0, 40, -20, 0],
           }}
-          transition={{ duration: 22, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 1 }}
+          transition={{ duration: 28, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 1 }}
         />
       </div>
 
-      {/* Header Navigation */}
       <motion.header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrollY > 50
-            ? "bg-slate-950/80 backdrop-blur-md border-b border-cyan-500/10 shadow-lg shadow-cyan-500/5"
-            : "bg-transparent"
+          scrollY > 50 ? "bg-slate-950/90 backdrop-blur-xl border-b border-cyan-500/10 shadow-lg" : "bg-transparent"
         }`}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
           <motion.a
             href="#hero"
-            className="font-bold text-2xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"
-            whileHover={{ scale: 1.05 }}
+            className="font-bold text-xl text-cyan-400 tracking-tight"
+            whileHover={{ scale: 1.02 }}
           >
-            {safeData.name}
+            {safeData.name.split(" ")[0]}
           </motion.a>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex gap-8">
+          <nav className="hidden md:flex gap-12">
             {sections.map((section) => (
               <motion.button
                 key={section.id}
                 onClick={() => scrollToSection(section.id)}
                 className={`text-sm font-medium transition-colors relative ${
-                  activeSection === section.id
-                    ? "text-cyan-400"
-                    : "text-gray-300 hover:text-cyan-400"
+                  activeSection === section.id ? "text-cyan-400" : "text-gray-400 hover:text-cyan-400"
                 }`}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.02 }}
               >
                 {section.label}
                 {activeSection === section.id && (
                   <motion.div
-                    className="absolute -bottom-2 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 w-full"
+                    className="absolute -bottom-2 left-0 h-0.5 w-full bg-cyan-500"
                     layoutId="nav-indicator"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
                   />
                 )}
               </motion.button>
             ))}
           </nav>
 
-          {/* Mobile Menu Button */}
           <motion.button
-            className="md:hidden p-2"
+            className="md:hidden p-2 text-cyan-400"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             whileTap={{ scale: 0.95 }}
           >
@@ -231,11 +210,10 @@ export const StaticPortfolio = ({ portfolioData }) => {
           </motion.button>
         </div>
 
-        {/* Mobile Menu */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              className="md:hidden bg-slate-900/95 backdrop-blur-md border-t border-cyan-500/10"
+              className="md:hidden bg-slate-900/95 backdrop-blur-xl border-t border-cyan-500/10"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
@@ -248,7 +226,7 @@ export const StaticPortfolio = ({ portfolioData }) => {
                       scrollToSection(section.id)
                       setIsMenuOpen(false)
                     }}
-                    className="w-full text-left px-4 py-2 rounded-lg hover:bg-cyan-500/10 transition-colors"
+                    className="w-full text-left px-4 py-2 rounded-lg text-gray-300 hover:text-cyan-400 hover:bg-cyan-500/10 transition-colors"
                     whileHover={{ x: 4 }}
                   >
                     {section.label}
@@ -260,53 +238,41 @@ export const StaticPortfolio = ({ portfolioData }) => {
         </AnimatePresence>
       </motion.header>
 
-      {/* Hero Section */}
       <section id="hero" className="min-h-screen flex items-center px-4 pt-20">
-        <div className="max-w-6xl mx-auto w-full grid lg:grid-cols-2 gap-12 items-center">
-          {/* Text Content */}
-          <motion.div
-            className="space-y-6"
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-          >
+        <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-16 items-center">
+          <motion.div className="space-y-8" variants={staggerContainer} initial="hidden" animate="visible">
             <motion.div variants={fadeInUp}>
-              <h1 className="text-5xl md:text-7xl font-bold leading-tight">
-                Hi, I'm <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">{safeData.name}</span>
-              </h1>
+              <p className="text-cyan-400 font-medium tracking-widest uppercase text-sm mb-2">
+                Welcome to my portfolio
+              </p>
+              <h1 className="text-6xl md:text-7xl font-bold leading-tight tracking-tight">{safeData.name}</h1>
+              <p className="text-2xl text-cyan-400 font-medium mt-2">{safeData.title}</p>
             </motion.div>
 
-            <motion.p variants={fadeInUp} className="text-xl md:text-2xl text-gray-300">
-              {safeData.title}
-            </motion.p>
-
-            <motion.p variants={fadeInUp} className="text-lg text-gray-400 max-w-xl leading-relaxed">
+            <motion.p variants={fadeInUp} className="text-lg text-gray-300 leading-relaxed max-w-lg">
               {safeData.shortBio}
             </motion.p>
 
-            {/* CTA Buttons */}
             <motion.div variants={fadeInUp} className="flex flex-wrap gap-4 pt-4">
               <motion.button
                 onClick={() => scrollToSection("contact")}
-                className="px-8 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all"
-                whileHover={{ scale: 1.05, y: -2 }}
+                className="px-8 py-3 rounded-lg bg-cyan-500 text-slate-950 font-medium hover:bg-cyan-400 transition-all"
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Get in Touch <ArrowRight className="inline ml-2 h-4 w-4" />
+                Get in Touch
               </motion.button>
 
               <motion.a
                 href={safeData.cvUrl || "#"}
                 download
                 className="px-8 py-3 rounded-lg border-2 border-cyan-500/50 text-cyan-400 font-medium hover:bg-cyan-500/10 transition-all"
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }}
               >
-                Download CV <Download className="inline ml-2 h-4 w-4" />
+                Download CV
               </motion.a>
             </motion.div>
 
-            {/* Social Links */}
             <motion.div variants={fadeInUp} className="flex gap-4 pt-4">
               {safeData.socialLinks?.github && (
                 <motion.a
@@ -314,7 +280,7 @@ export const StaticPortfolio = ({ portfolioData }) => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-3 rounded-full bg-slate-800/50 text-cyan-400 hover:bg-cyan-500/10 transition-all"
-                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileHover={{ scale: 1.1 }}
                 >
                   <Github size={20} />
                 </motion.a>
@@ -325,7 +291,7 @@ export const StaticPortfolio = ({ portfolioData }) => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-3 rounded-full bg-slate-800/50 text-cyan-400 hover:bg-cyan-500/10 transition-all"
-                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileHover={{ scale: 1.1 }}
                 >
                   <Linkedin size={20} />
                 </motion.a>
@@ -333,68 +299,35 @@ export const StaticPortfolio = ({ portfolioData }) => {
             </motion.div>
           </motion.div>
 
-          {/* Image Cards */}
           <motion.div
             className="relative h-96 md:h-[500px] hidden lg:flex items-center justify-center"
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
           >
-            <motion.div
-              className="absolute left-0 top-10 w-64 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl backdrop-blur-md border border-cyan-500/20"
-              animate={{ y: [0, -10, 0], rotate: [-2, 0, -2] }}
-              transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY }}
-              whileHover={{ scale: 1.05, rotate: 0 }}
-            >
+            <div className="relative w-72 h-96 rounded-2xl overflow-hidden shadow-2xl border border-cyan-500/20">
               <img src={photos[0] || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
-            </motion.div>
-
-            <motion.div
-              className="absolute right-0 bottom-0 w-56 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl backdrop-blur-md border border-cyan-500/20"
-              animate={{ y: [0, 10, 0], rotate: [2, 0, 2] }}
-              transition={{ duration: 5, repeat: Number.POSITIVE_INFINITY, delay: 0.5 }}
-              whileHover={{ scale: 1.05, rotate: 0 }}
-            >
-              <img src={photos[1] || "/placeholder.svg"} alt="Tech" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
-            </motion.div>
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent" />
+            </div>
           </motion.div>
         </div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-        >
-          <motion.button
-            onClick={() => scrollToSection("about")}
-            className="p-3 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/20 transition-all"
-            whileHover={{ scale: 1.1 }}
-          >
-            <ArrowRight className="h-6 w-6 rotate-90" />
-          </motion.button>
-        </motion.div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="py-24 px-4">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+      <section id="about" className="py-32 px-4 border-t border-cyan-500/10">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7 }}
             className="relative"
           >
-            <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl backdrop-blur-md border border-cyan-500/20 group">
+            <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border border-cyan-500/20">
               <img
                 src={safeData.profileImage || "/placeholder.svg"}
                 alt={safeData.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 to-transparent" />
             </div>
           </motion.div>
 
@@ -402,36 +335,34 @@ export const StaticPortfolio = ({ portfolioData }) => {
             initial={{ opacity: 0, x: 40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7 }}
-            className="space-y-6"
+            className="space-y-8"
           >
             <div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">About Me</span>
+              <h2 className="text-5xl font-bold mb-6">
+                <span className="text-cyan-400">About</span> Me
               </h2>
-              <div className="h-1 w-20 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full" />
+              <div className="h-1 w-16 bg-cyan-500 rounded-full" />
             </div>
 
             <p className="text-lg text-gray-300 leading-relaxed">{safeData.longBio}</p>
 
             <div>
-              <h3 className="text-xl font-semibold mb-4 text-cyan-400">Core Skills</h3>
+              <h3 className="text-xl font-semibold mb-4 text-cyan-400">Core Competencies</h3>
               <motion.div
-                className="flex flex-wrap gap-3"
+                className="grid grid-cols-2 gap-3"
                 variants={staggerContainer}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
               >
                 {safeData.coreSkills?.map((skill, i) => (
-                  <motion.span
+                  <motion.div
                     key={skill + i}
-                    className="px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-sm font-medium hover:bg-cyan-500/20 transition-all"
+                    className="px-4 py-3 rounded-lg bg-slate-800/50 border border-cyan-500/30 text-cyan-400 text-sm font-medium hover:border-cyan-500 transition-all"
                     variants={fadeInUp}
-                    whileHover={{ scale: 1.05, y: -2 }}
                   >
                     {skill}
-                  </motion.span>
+                  </motion.div>
                 ))}
               </motion.div>
             </div>
@@ -440,18 +371,18 @@ export const StaticPortfolio = ({ portfolioData }) => {
       </section>
 
       {/* Skills Section */}
-      <section id="skills" className="py-24 px-4">
-        <div className="max-w-6xl mx-auto">
+      <section id="skills" className="py-32 px-4">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-20"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Technical Skills</span>
+            <h2 className="text-5xl font-bold mb-6">
+              <span className="text-cyan-400">Technical</span> Skills
             </h2>
-            <div className="h-1 w-20 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full mx-auto" />
+            <div className="h-1 w-16 bg-cyan-500 rounded-full mx-auto" />
           </motion.div>
 
           <motion.div
@@ -464,11 +395,14 @@ export const StaticPortfolio = ({ portfolioData }) => {
             {safeData.skillCategories?.map((category, i) => (
               <motion.div
                 key={category.name + i}
-                className="p-6 rounded-xl bg-slate-800/50 backdrop-blur-md border border-cyan-500/20 hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10"
+                className="p-8 rounded-xl bg-slate-800/40 backdrop-blur border border-cyan-500/20 hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10"
                 variants={fadeInUp}
               >
-                <h3 className="text-xl font-semibold mb-6 text-cyan-400">{category.name}</h3>
-                <div className="space-y-4">
+                <h3 className="text-lg font-semibold mb-6 text-cyan-400 flex items-center gap-2">
+                  <Code size={20} />
+                  {category.name}
+                </h3>
+                <div className="space-y-5">
                   {category.skills?.map((skill, idx) => (
                     <div key={skill.name + idx}>
                       <div className="flex justify-between mb-2">
@@ -490,22 +424,31 @@ export const StaticPortfolio = ({ portfolioData }) => {
               </motion.div>
             ))}
           </motion.div>
-        </div>
-      </section>
 
-      {/* Experience Section */}
-      <section id="experience" className="py-24 px-4">
-        <div className="max-w-6xl mx-auto">
+          {/* Technology Logos Gallery */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="mt-32 pt-16 border-t border-slate-700/50"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Work Experience</span>
+            <TechnologyLogos />
+          </motion.div>
+        </div>
+      </section>
+
+      <section id="experience" className="py-32 px-4 border-t border-cyan-500/10">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <h2 className="text-5xl font-bold mb-6">
+              <span className="text-cyan-400">Work</span> Experience
             </h2>
-            <div className="h-1 w-20 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full mx-auto" />
+            <div className="h-1 w-16 bg-cyan-500 rounded-full mx-auto" />
           </motion.div>
 
           {safeData.experiences?.length ? (
@@ -520,26 +463,31 @@ export const StaticPortfolio = ({ portfolioData }) => {
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                 >
                   <motion.div
-                    className="absolute -left-4 top-1 w-6 h-6 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/50"
+                    className="absolute -left-4 top-1 w-6 h-6 rounded-full bg-cyan-500 shadow-lg shadow-cyan-500/50"
                     initial={{ scale: 0 }}
                     whileInView={{ scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.2 + i * 0.1 }}
                   />
-                  <div className="p-6 rounded-xl bg-slate-800/50 backdrop-blur-md border border-cyan-500/20 hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-xl font-semibold text-cyan-400">{exp.role}</h3>
+                  <div className="p-8 rounded-xl bg-slate-800/40 border border-cyan-500/20 hover:border-cyan-500/50 transition-all">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-3">
+                        <Briefcase size={20} className="text-cyan-400" />
+                        <div>
+                          <h3 className="text-xl font-semibold text-cyan-400">{exp.role}</h3>
+                          <p className="text-gray-400">{exp.company}</p>
+                        </div>
+                      </div>
                       <span className="text-xs px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
                         {exp.period}
                       </span>
                     </div>
-                    <p className="text-gray-400 mb-2">{exp.company}</p>
                     <p className="text-gray-300 mb-4">{exp.description}</p>
                     {exp.achievements?.length > 0 && (
                       <ul className="space-y-2">
                         {exp.achievements.map((ach, idx) => (
-                          <li key={idx} className="flex items-start gap-2 text-gray-300">
-                            <ChevronRight className="h-4 w-4 text-cyan-400 mt-1 flex-shrink-0" />
+                          <li key={idx} className="flex items-start gap-3 text-gray-300 text-sm">
+                            <span className="text-cyan-400 mt-1">▹</span>
                             <span>{ach}</span>
                           </li>
                         ))}
@@ -555,19 +503,18 @@ export const StaticPortfolio = ({ portfolioData }) => {
         </div>
       </section>
 
-      {/* Projects Section */}
-      <section id="projects" className="py-24 px-4">
-        <div className="max-w-6xl mx-auto">
+      <section id="projects" className="py-32 px-4">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-20"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Projects</span>
+            <h2 className="text-5xl font-bold mb-6">
+              <span className="text-cyan-400">Featured</span> Projects
             </h2>
-            <div className="h-1 w-20 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full mx-auto" />
+            <div className="h-1 w-16 bg-cyan-500 rounded-full mx-auto" />
           </motion.div>
 
           {safeData.projects?.length ? (
@@ -581,7 +528,7 @@ export const StaticPortfolio = ({ portfolioData }) => {
               {safeData.projects.map((project, i) => (
                 <motion.div
                   key={project.title + i}
-                  className="rounded-xl overflow-hidden bg-slate-800/50 backdrop-blur-md border border-cyan-500/20 hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10"
+                  className="rounded-xl overflow-hidden bg-slate-800/40 border border-cyan-500/20 hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10"
                   variants={fadeInUp}
                 >
                   <div className="aspect-video relative overflow-hidden bg-slate-800">
@@ -590,11 +537,11 @@ export const StaticPortfolio = ({ portfolioData }) => {
                       alt={project.title}
                       className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
                   </div>
                   <div className="p-6 space-y-4">
                     <h3 className="text-xl font-semibold text-cyan-400">{project.title}</h3>
-                    <p className="text-gray-300">{project.description}</p>
+                    <p className="text-gray-300 text-sm">{project.description}</p>
                     <div className="flex flex-wrap gap-2">
                       {project.technologies?.map((tech, idx) => (
                         <span
@@ -610,9 +557,9 @@ export const StaticPortfolio = ({ portfolioData }) => {
                         href={project.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center text-cyan-400 hover:text-cyan-300 transition-colors"
+                        className="inline-flex items-center text-cyan-400 hover:text-cyan-300 transition-colors text-sm font-medium"
                       >
-                        View Project <ArrowRight className="h-4 w-4 ml-2" />
+                        View Project <ExternalLink className="h-4 w-4 ml-2" />
                       </a>
                     )}
                   </div>
@@ -625,77 +572,111 @@ export const StaticPortfolio = ({ portfolioData }) => {
         </div>
       </section>
 
-      {/* Certifications Section */}
       <CertificationSection certifications={safeData.certifications} />
 
-      {/* Contact Section */}
-      <section id="contact" className="py-24 px-4">
-        <div className="max-w-4xl mx-auto">
+      {/* Recommendations Section */}
+      <section id="recommendations" className="py-32 px-4 border-t border-cyan-500/10">
+        <div className="max-w-6xl mx-auto">
+          <RecommendationsGallery />
+        </div>
+      </section>
+
+      <section id="contact" className="py-32 px-4 border-t border-cyan-500/10">
+        <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-20"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Get In Touch</span>
+            <h2 className="text-5xl font-bold mb-6">
+              <span className="text-cyan-400">Get</span> in Touch
             </h2>
-            <div className="h-1 w-20 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full mx-auto" />
+            <div className="h-1 w-16 bg-cyan-500 rounded-full mx-auto" />
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="p-8 md:p-12 rounded-2xl bg-slate-800/50 backdrop-blur-md border border-cyan-500/20"
+            className="p-12 rounded-2xl bg-slate-800/40 border border-cyan-500/20"
           >
-            <div className="grid md:grid-cols-2 gap-12">
-              <div className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-16">
+              <div className="space-y-8">
                 <h3 className="text-2xl font-semibold text-cyan-400">Contact Information</h3>
-                <p className="text-gray-300">Feel free to reach out directly:</p>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {safeData.contact?.email && (
-                    <motion.div className="flex items-center gap-4" whileHover={{ x: 4 }}>
-                      <div className="p-3 rounded-full bg-cyan-500/10 text-cyan-400"><Mail size={20} /></div>
-                      <a href={`mailto:${safeData.contact.email}`} className="text-gray-300 hover:text-cyan-400 transition-colors">{safeData.contact.email}</a>
-                    </motion.div>
+                    <motion.a
+                      href={`mailto:${safeData.contact.email}`}
+                      className="flex items-center gap-4 group"
+                      whileHover={{ x: 4 }}
+                    >
+                      <div className="p-3 rounded-lg bg-cyan-500/10 text-cyan-400 group-hover:bg-cyan-500/20 transition-all">
+                        <Mail size={20} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400">Email</p>
+                        <p className="text-gray-300 group-hover:text-cyan-400 transition-colors">
+                          {safeData.contact.email}
+                        </p>
+                      </div>
+                    </motion.a>
                   )}
                   {safeData.contact?.phone && (
                     <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-full bg-cyan-500/10 text-cyan-400"><Phone size={20} /></div>
-                      <span className="text-gray-300">{safeData.contact.phone}</span>
+                      <div className="p-3 rounded-lg bg-cyan-500/10 text-cyan-400">
+                        <Phone size={20} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400">Phone</p>
+                        <p className="text-gray-300">{safeData.contact.phone}</p>
+                      </div>
                     </div>
                   )}
                   {safeData.contact?.location && (
                     <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-full bg-cyan-500/10 text-cyan-400"><MapPin size={20} /></div>
-                      <span className="text-gray-300">{safeData.contact.location}</span>
+                      <div className="p-3 rounded-lg bg-cyan-500/10 text-cyan-400">
+                        <MapPin size={20} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400">Location</p>
+                        <p className="text-gray-300">{safeData.contact.location}</p>
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="text-gray-400">
-                <p>Message form would go here. Contact information is displayed above.</p>
-              </div>
+              <ContactForm />
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 px-4 border-t border-cyan-500/10">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <p className="text-gray-400">© {new Date().getFullYear()} {safeData.name}. All rights reserved.</p>
-          <div className="flex gap-4">
+      <footer className="py-12 px-4 border-t border-cyan-500/10">
+        <div className="max-w-7xl mx-auto flex justify-between items-center flex-col md:flex-row gap-6">
+          <p className="text-gray-400">
+            © {new Date().getFullYear()} {safeData.name}. All rights reserved.
+          </p>
+          <div className="flex gap-6">
             {safeData.socialLinks?.github && (
-              <a href={safeData.socialLinks.github} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-cyan-400 transition-colors">
+              <a
+                href={safeData.socialLinks.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-cyan-400 transition-colors"
+              >
                 <Github size={20} />
               </a>
             )}
             {safeData.socialLinks?.linkedin && (
-              <a href={safeData.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-cyan-400 transition-colors">
+              <a
+                href={safeData.socialLinks.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-cyan-400 transition-colors"
+              >
                 <Linkedin size={20} />
               </a>
             )}
@@ -706,14 +687,13 @@ export const StaticPortfolio = ({ portfolioData }) => {
   )
 }
 
-// Page wrapper with loader
 export default function ClientPage({ portfolioData }) {
   const [isClient, setIsClient] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     setIsClient(true)
-    const timer = setTimeout(() => setIsLoading(false), 1500)
+    const timer = setTimeout(() => setIsLoading(false), 1200)
     return () => clearTimeout(timer)
   }, [])
 
@@ -721,7 +701,7 @@ export default function ClientPage({ portfolioData }) {
 
   return (
     <AnimatePresence mode="wait">
-      {isLoading ? <Enhanced3DLoader /> : <StaticPortfolio portfolioData={portfolioData} />}
+      {isLoading ? <EnhancedLoader /> : <StaticPortfolio portfolioData={portfolioData} />}
     </AnimatePresence>
   )
 }
