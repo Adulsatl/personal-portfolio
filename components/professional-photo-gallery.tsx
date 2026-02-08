@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
-import { getGalleryPhotos } from '@/lib/data-service'
 
 interface Photo {
   id?: string
@@ -28,12 +27,14 @@ export default function ProfessionalPhotoGallery({
   const [galleryPhotos, setGalleryPhotos] = useState<Photo[]>([])
   const [isLoading, setIsLoading] = useState(!initialPhotos)
 
-  // Fetch photos from database on mount
+  // Fetch photos from API on mount
   useEffect(() => {
     if (!initialPhotos) {
       const fetchPhotos = async () => {
         try {
-          const data = await getGalleryPhotos()
+          const response = await fetch('/api/gallery')
+          if (!response.ok) throw new Error('Failed to fetch gallery photos')
+          const data = await response.json()
           if (data && data.length > 0) {
             setGalleryPhotos(data)
           }

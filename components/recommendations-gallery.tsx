@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Star, ChevronLeft, ChevronRight, Linkedin } from 'lucide-react'
-import { getTestimonials } from '@/lib/data-service'
 
 interface Recommendation {
   id: string
@@ -57,14 +56,18 @@ export const RecommendationsGallery: React.FC<RecommendationsGalleryProps> = ({
   const [isLoading, setIsLoading] = useState(!initialRecommendations)
   const recommendations = testimonials; // Declare recommendations variable
 
-  // Fetch testimonials from database on mount
+  // Fetch testimonials from API on mount
   useEffect(() => {
     if (!initialRecommendations) {
       const fetchTestimonials = async () => {
         try {
-          const data = await getTestimonials()
+          const response = await fetch('/api/testimonials')
+          if (!response.ok) throw new Error('Failed to fetch testimonials')
+          const data = await response.json()
           if (data && data.length > 0) {
             setTestimonials(data)
+          } else {
+            setTestimonials(defaultRecommendations)
           }
         } catch (error) {
           console.error('Error fetching testimonials:', error)
