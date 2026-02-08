@@ -18,35 +18,7 @@ interface RecommendationsGalleryProps {
   recommendations?: Recommendation[]
 }
 
-const defaultRecommendations: Recommendation[] = [
-  {
-    id: '1',
-    name: 'Mohammed Al-Mansouri',
-    title: 'IT Director',
-    company: 'Dubai Tech Solutions',
-    message:
-      'Exceptional IT administrator with outstanding expertise in infrastructure management. Highly professional and reliable.',
-    rating: 5,
-  },
-  {
-    id: '2',
-    name: 'Sarah Johnson',
-    title: 'Infrastructure Manager',
-    company: 'Emirates Enterprise',
-    message:
-      'Outstanding problem-solving skills and deep technical knowledge. Always ready to support team and exceed expectations.',
-    rating: 5,
-  },
-  {
-    id: '3',
-    name: 'Ahmed Al-Zaabi',
-    title: 'CTO',
-    company: 'Digital Arabia Inc',
-    message:
-      'Demonstrates excellent system administration capabilities. Proactive in security and performance optimization.',
-    rating: 5,
-  },
-]
+const defaultRecommendations: Recommendation[] = []
 
 export const RecommendationsGallery: React.FC<RecommendationsGalleryProps> = ({
   recommendations: initialRecommendations,

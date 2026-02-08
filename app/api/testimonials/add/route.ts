@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { createClient } from "@supabase/supabase-js"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
@@ -9,7 +9,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Name and message are required" }, { status: 400 })
     }
 
-    const supabase = await createServerSupabaseClient()
+    // Use service role key for admin operations (bypasses RLS)
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
 
     const { data, error } = await supabase
       .from("testimonials")
@@ -20,18 +24,17 @@ export async function POST(request: NextRequest) {
         message,
         rating: rating || 5,
         linkedin_url: linkedin_url || null,
-        created_at: new Date().toISOString(),
       })
       .select()
 
     if (error) {
-      console.error("Testimonial add error:", error)
+      console.error("[v0] Testimonial add error:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data?.[0] || { success: true })
   } catch (error) {
-    console.error("Error adding testimonial:", error)
+    console.error("[v0] Error adding testimonial:", error)
     return NextResponse.json({ error: "Failed to add testimonial" }, { status: 500 })
   }
 }
