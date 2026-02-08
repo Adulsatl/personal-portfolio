@@ -187,6 +187,128 @@ export async function deleteEnquiry(enquiryId: string) {
   }
 }
 
+// Gallery Photos
+export async function getGalleryPhotos() {
+  try {
+    const supabase = createServerSupabaseClient()
+    const { data, error } = await supabase.from("gallery_photos").select("*").order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Error fetching gallery photos:", error)
+      return []
+    }
+
+    return data || []
+  } catch (error) {
+    console.error("Error getting gallery photos:", error)
+    return []
+  }
+}
+
+export async function addGalleryPhoto(photo: any) {
+  try {
+    const supabase = createClientSupabaseClient()
+
+    const { data, error } = await supabase.from("gallery_photos").insert({
+      title: photo.title,
+      description: photo.description,
+      image_url: photo.image_url,
+      category: photo.category || "Professional",
+      created_at: new Date().toISOString(),
+    }).select()
+
+    if (error) {
+      console.error("Error adding gallery photo:", error)
+      return false
+    }
+
+    return data?.[0] || true
+  } catch (error) {
+    console.error("Error adding gallery photo:", error)
+    return false
+  }
+}
+
+export async function deleteGalleryPhoto(photoId: string) {
+  try {
+    const supabase = createClientSupabaseClient()
+
+    const { error } = await supabase.from("gallery_photos").delete().eq("id", photoId)
+
+    if (error) {
+      console.error("Error deleting gallery photo:", error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error("Error deleting gallery photo:", error)
+    return false
+  }
+}
+
+// Testimonials/Recommendations
+export async function getTestimonials() {
+  try {
+    const supabase = createServerSupabaseClient()
+    const { data, error } = await supabase.from("testimonials").select("*").order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Error fetching testimonials:", error)
+      return []
+    }
+
+    return data || []
+  } catch (error) {
+    console.error("Error getting testimonials:", error)
+    return []
+  }
+}
+
+export async function addTestimonial(testimonial: any) {
+  try {
+    const supabase = createClientSupabaseClient()
+
+    const { data, error } = await supabase.from("testimonials").insert({
+      name: testimonial.name,
+      title: testimonial.title,
+      company: testimonial.company,
+      message: testimonial.message,
+      rating: testimonial.rating || 5,
+      linkedin_url: testimonial.linkedin_url || null,
+      created_at: new Date().toISOString(),
+    }).select()
+
+    if (error) {
+      console.error("Error adding testimonial:", error)
+      return false
+    }
+
+    return data?.[0] || true
+  } catch (error) {
+    console.error("Error adding testimonial:", error)
+    return false
+  }
+}
+
+export async function deleteTestimonial(testimonialId: string) {
+  try {
+    const supabase = createClientSupabaseClient()
+
+    const { error } = await supabase.from("testimonials").delete().eq("id", testimonialId)
+
+    if (error) {
+      console.error("Error deleting testimonial:", error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error("Error deleting testimonial:", error)
+    return false
+  }
+}
+
 // Default data
 function getDefaultPortfolioData() {
   return {
