@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Trash2, Plus, Star } from "lucide-react"
-import { getTestimonials, addTestimonial, deleteTestimonial } from "@/lib/data-service"
 
 export default function TestimonialsTab() {
   const [testimonials, setTestimonials] = useState([])
@@ -24,9 +23,17 @@ export default function TestimonialsTab() {
 
   const fetchTestimonials = async () => {
     setIsLoading(true)
-    const data = await getTestimonials()
-    setTestimonials(data)
-    setIsLoading(false)
+    try {
+      const response = await fetch("/api/testimonials")
+      if (!response.ok) throw new Error("Failed to fetch")
+      const data = await response.json()
+      setTestimonials(data || [])
+    } catch (error) {
+      console.error("Error fetching testimonials:", error)
+      setTestimonials([])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleAddTestimonial = async (e) => {
@@ -40,16 +47,22 @@ export default function TestimonialsTab() {
     setErrorMessage("")
     setSuccessMessage("")
 
-    const success = await addTestimonial({
-      name,
-      title,
-      company,
-      message,
-      rating,
-      linkedin_url: linkedinUrl || null,
-    })
+    try {
+      const response = await fetch("/api/testimonials/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          title: title || null,
+          company: company || null,
+          message,
+          rating,
+          linkedin_url: linkedinUrl || null,
+        }),
+      })
 
-    if (success) {
+      if (!response.ok) throw new Error("Failed to add testimonial")
+
       setName("")
       setTitle("")
       setCompany("")
@@ -58,20 +71,29 @@ export default function TestimonialsTab() {
       setLinkedinUrl("")
       setSuccessMessage("Testimonial added successfully!")
       fetchTestimonials()
-    } else {
+    } catch (error) {
+      console.error("Error adding testimonial:", error)
       setErrorMessage("Failed to add testimonial")
+    } finally {
+      setIsAdding(false)
     }
-
-    setIsAdding(false)
   }
 
   const handleDeleteTestimonial = async (testimonialId) => {
     if (confirm("Are you sure you want to delete this testimonial?")) {
-      const success = await deleteTestimonial(testimonialId)
-      if (success) {
+      try {
+        const response = await fetch("/api/testimonials/delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: testimonialId }),
+        })
+
+        if (!response.ok) throw new Error("Failed to delete")
+
         setSuccessMessage("Testimonial deleted successfully!")
         fetchTestimonials()
-      } else {
+      } catch (error) {
+        console.error("Error deleting testimonial:", error)
         setErrorMessage("Failed to delete testimonial")
       }
     }

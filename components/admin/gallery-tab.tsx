@@ -2,16 +2,17 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Upload, Trash2, Plus, Edit2 } from "lucide-react"
-import { getGalleryPhotos, addGalleryPhoto, deleteGalleryPhoto } from "@/lib/data-service"
+import { Upload, Trash2, Plus, ImagePlus } from "lucide-react"
 
 export default function GalleryTab() {
   const [photos, setPhotos] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isAdding, setIsAdding] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [imageUrl, setImageUrl] = useState("")
+  const [imageFile, setImageFile] = useState(null)
   const [category, setCategory] = useState("Professional")
   const [successMessage, setSuccessMessage] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
@@ -22,15 +23,48 @@ export default function GalleryTab() {
 
   const fetchPhotos = async () => {
     setIsLoading(true)
-    const data = await getGalleryPhotos()
-    setPhotos(data)
-    setIsLoading(false)
+    try {
+      const response = await fetch("/api/gallery")
+      if (!response.ok) throw new Error("Failed to fetch")
+      const data = await response.json()
+      setPhotos(data || [])
+    } catch (error) {
+      console.error("Error fetching photos:", error)
+      setPhotos([])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleFileUpload = async (file) => {
+    if (!file) return
+    setIsUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) throw new Error("Upload failed")
+
+      const data = await response.json()
+      setImageUrl(data.url || "")
+      setSuccessMessage("Image uploaded successfully!")
+    } catch (error) {
+      console.error("Error uploading image:", error)
+      setErrorMessage("Failed to upload image")
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   const handleAddPhoto = async (e) => {
     e.preventDefault()
     if (!title || !imageUrl) {
-      setErrorMessage("Title and image URL are required")
+      setErrorMessage("Title and image are required")
       return
     }
 
@@ -38,34 +72,50 @@ export default function GalleryTab() {
     setErrorMessage("")
     setSuccessMessage("")
 
-    const success = await addGalleryPhoto({
-      title,
-      description,
-      image_url: imageUrl,
-      category,
-    })
+    try {
+      const response = await fetch("/api/gallery/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description: description || null,
+          image_url: imageUrl,
+          category,
+        }),
+      })
 
-    if (success) {
+      if (!response.ok) throw new Error("Failed to add photo")
+
       setTitle("")
       setDescription("")
       setImageUrl("")
+      setImageFile(null)
       setCategory("Professional")
       setSuccessMessage("Photo added successfully!")
       fetchPhotos()
-    } else {
+    } catch (error) {
+      console.error("Error adding photo:", error)
       setErrorMessage("Failed to add photo")
+    } finally {
+      setIsAdding(false)
     }
-
-    setIsAdding(false)
   }
 
   const handleDeletePhoto = async (photoId) => {
     if (confirm("Are you sure you want to delete this photo?")) {
-      const success = await deleteGalleryPhoto(photoId)
-      if (success) {
+      try {
+        const response = await fetch("/api/gallery/delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: photoId }),
+        })
+
+        if (!response.ok) throw new Error("Failed to delete")
+
         setSuccessMessage("Photo deleted successfully!")
         fetchPhotos()
-      } else {
+      } catch (error) {
+        console.error("Error deleting photo:", error)
         setErrorMessage("Failed to delete photo")
       }
     }
@@ -97,14 +147,42 @@ export default function GalleryTab() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Image URL *</label>
-            <input
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full bg-slate-700/50 border border-cyan-500/30 rounded px-4 py-2 text-white focus:outline-none focus:border-cyan-500 transition-colors"
-              placeholder="https://example.com/image.jpg"
-            />
+            <label className="block text-sm font-medium text-slate-300 mb-2">Upload Image *</label>
+            <div className="flex gap-2 mb-3">
+              <label className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      setImageFile(e.target.files[0])
+                    }
+                  }}
+                  className="hidden"
+                />
+                <div className="flex items-center justify-center gap-2 w-full bg-slate-700/50 border border-cyan-500/30 rounded px-4 py-2 cursor-pointer hover:border-cyan-500 transition-colors">
+                  <ImagePlus className="w-4 h-4 text-cyan-300" />
+                  <span className="text-white text-sm">
+                    {imageFile ? imageFile.name : "Choose Image"}
+                  </span>
+                </div>
+              </label>
+              {imageFile && (
+                <button
+                  type="button"
+                  onClick={() => handleFileUpload(imageFile)}
+                  disabled={isUploading}
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded transition-colors disabled:opacity-50"
+                >
+                  {isUploading ? "Uploading..." : "Upload"}
+                </button>
+              )}
+            </div>
+            {imageUrl && (
+              <div className="mb-3 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded">
+                <p className="text-sm text-cyan-300">✓ Image uploaded: {imageUrl.split("/").pop()}</p>
+              </div>
+            )}
           </div>
 
           <div>
