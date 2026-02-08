@@ -215,7 +215,21 @@ export default function HomePage({ portfolioData = {} }) {
         <div className="max-w-3xl mx-auto text-center space-y-6 z-10">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-4">
-              Hi, I'm <span className="text-cyan-600 dark:text-cyan-400">{safeData.name}</span>
+              Hi, I'm{" "}
+              <motion.span
+                className="text-cyan-600 dark:text-cyan-400 inline-block"
+                animate={{
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                  textShadow: [
+                    "0 0 10px rgba(34, 211, 238, 0.5)",
+                    "0 0 20px rgba(34, 211, 238, 0.8)",
+                    "0 0 10px rgba(34, 211, 238, 0.5)",
+                  ],
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                {safeData.name}
+              </motion.span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-6">{safeData.title}</p>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">{safeData.shortBio}</p>

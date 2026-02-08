@@ -61,10 +61,10 @@ const itemVariants = {
 const glowVariants = {
   initial: { opacity: 0, scale: 0.8 },
   animate: {
-    opacity: [0, 1, 0],
-    scale: [0.8, 1.2, 1.4],
+    opacity: [0, 0.8, 0.6, 0],
+    scale: [0.8, 1.3, 1.6, 1.8],
     transition: {
-      duration: 2,
+      duration: 3,
       repeat: Number.POSITIVE_INFINITY,
       ease: 'easeOut',
     },
@@ -157,11 +157,17 @@ export const AnimatedLogoGallery: React.FC<AnimatedLogoGalleryProps> = ({
 
               {/* Content */}
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4">
-                {/* Icon container with smooth rotation */}
+                {/* Icon container with smooth rotation and glow */}
                 <motion.div
-                  className="text-5xl md:text-6xl"
+                  className="text-5xl md:text-6xl filter drop-shadow-lg"
                   whileHover={{
                     rotate: [0, -8, 8, -6, 6, 0],
+                    scale: [1, 1.15, 1.15, 1.15, 1.15, 1],
+                    filter: [
+                      "drop-shadow(0 0 8px rgba(34, 211, 238, 0.5))",
+                      "drop-shadow(0 0 20px rgba(34, 211, 238, 0.8))",
+                      "drop-shadow(0 0 30px rgba(34, 211, 238, 0.6))",
+                    ],
                     transition: { duration: 0.6, ease: 'easeInOut' },
                   }}
                   transition={{ duration: 0.3, ease: 'easeOut' }}

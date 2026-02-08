@@ -580,18 +580,7 @@ export const StaticPortfolio = ({ portfolioData }) => {
       {/* Professional Photo Gallery */}
       <section id="gallery" className="py-32 px-4 border-t border-cyan-500/10">
         <div className="max-w-6xl mx-auto">
-          <ProfessionalPhotoGallery 
-            photos={[
-              "/professional-it-administrator.jpg",
-              "/server-room-administration.jpg",
-              "/modern-office-workspace.jpg",
-              "/network-infrastructure.jpg",
-              "/technical-setup.jpg",
-              "/it-administrator-datacenter.jpg",
-            ]}
-            title="Professional Workspace"
-            description="Enterprise IT environments, infrastructure setups, and professional workspaces"
-          />
+          <ProfessionalPhotoGallery />
         </div>
       </section>
 
