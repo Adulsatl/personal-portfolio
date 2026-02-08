@@ -89,6 +89,23 @@ export const RecommendationsGallery: React.FC<RecommendationsGalleryProps> = ({
     },
   }
 
+  // Show empty state if no testimonials
+  if (isLoading) {
+    return (
+      <div className="w-full text-center py-12">
+        <p className="text-slate-400">Loading recommendations...</p>
+      </div>
+    )
+  }
+
+  if (testimonials.length === 0) {
+    return (
+      <div className="w-full text-center py-12">
+        <p className="text-slate-400">No recommendations yet. Check back soon!</p>
+      </div>
+    )
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
