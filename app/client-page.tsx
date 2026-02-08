@@ -86,6 +86,7 @@ export const StaticPortfolio = ({ portfolioData }) => {
     { id: "projects", label: "Projects" },
     { id: "certifications", label: "Certifications" },
     { id: "gallery", label: "Gallery" },
+    { id: "testimonials", label: "Testimonials" },
     { id: "contact", label: "Contact" },
   ]
 
@@ -591,6 +592,13 @@ export const StaticPortfolio = ({ portfolioData }) => {
             title="Professional Workspace"
             description="Enterprise IT environments, infrastructure setups, and professional workspaces"
           />
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-32 px-4 border-t border-cyan-500/10">
+        <div className="max-w-6xl mx-auto">
+          <RecommendationsGallery />
         </div>
       </section>
 
