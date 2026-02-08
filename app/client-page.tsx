@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import CertificationSection from "@/components/certification-section"
 import ContactForm from "@/components/contact-form"
 import TechnologyLogos from "@/components/technology-logos"
-import RecommendationsGallery from "@/components/recommendations-gallery"
 import ProfessionalPhotoGallery from "@/components/professional-photo-gallery"
+import RecommendationsGallery from "@/components/recommendations-gallery"
 
 function usePhotos(portfolioData?: any) {
   const uploaded = Array.isArray(portfolioData?.photos) ? portfolioData.photos : []
@@ -85,7 +85,6 @@ export const StaticPortfolio = ({ portfolioData }) => {
     { id: "experience", label: "Experience" },
     { id: "projects", label: "Projects" },
     { id: "certifications", label: "Certifications" },
-    { id: "recommendations", label: "Recommendations" },
     { id: "gallery", label: "Gallery" },
     { id: "contact", label: "Contact" },
   ]
@@ -576,12 +575,6 @@ export const StaticPortfolio = ({ portfolioData }) => {
 
       <CertificationSection certifications={safeData.certifications} />
 
-      {/* Recommendations Section */}
-      <section id="recommendations" className="py-32 px-4 border-t border-cyan-500/10">
-        <div className="max-w-6xl mx-auto">
-          <RecommendationsGallery />
-        </div>
-      </section>
 
       {/* Professional Photo Gallery */}
       <section id="gallery" className="py-32 px-4 border-t border-cyan-500/10">
