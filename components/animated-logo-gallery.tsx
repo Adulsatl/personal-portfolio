@@ -16,6 +16,8 @@ interface AnimatedLogoGalleryProps {
   title: string
   subtitle?: string
   columns?: number
+  mobileColumns?: number
+  tabletColumns?: number
   autoScroll?: boolean
 }
 
@@ -76,15 +78,22 @@ export const AnimatedLogoGallery: React.FC<AnimatedLogoGalleryProps> = ({
   title,
   subtitle,
   columns = 4,
+  mobileColumns = 2,
+  tabletColumns = 3,
   autoScroll = true,
 }) => {
-  const containerClass = {
-    2: 'grid-cols-2',
-    3: 'grid-cols-3',
-    4: 'grid-cols-4',
-    5: 'grid-cols-5',
-    6: 'grid-cols-6',
-  }[Math.min(columns, 6)] || 'grid-cols-4'
+  const getGridClass = (cols: number) => {
+    const mapping: Record<number, string> = {
+      2: 'grid-cols-2',
+      3: 'grid-cols-3',
+      4: 'grid-cols-4',
+      5: 'grid-cols-5',
+      6: 'grid-cols-6',
+    }
+    return mapping[Math.min(cols, 6)] || 'grid-cols-4'
+  }
+
+  const containerClass = `${getGridClass(mobileColumns)} md:${getGridClass(tabletColumns)} lg:${getGridClass(columns)}`
 
   return (
     <motion.div
@@ -100,7 +109,7 @@ export const AnimatedLogoGallery: React.FC<AnimatedLogoGalleryProps> = ({
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent mb-2"
+          className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent mb-2"
         >
           {title}
         </motion.h2>
@@ -110,7 +119,7 @@ export const AnimatedLogoGallery: React.FC<AnimatedLogoGalleryProps> = ({
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
-            className="text-slate-300 text-lg"
+            className="text-sm sm:text-base md:text-lg text-slate-300"
           >
             {subtitle}
           </motion.p>
@@ -122,7 +131,7 @@ export const AnimatedLogoGallery: React.FC<AnimatedLogoGalleryProps> = ({
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className={`grid ${containerClass} gap-6 md:gap-8`}
+        className={`grid ${containerClass} gap-4 sm:gap-5 md:gap-6 lg:gap-8`}
       >
         {logos.map((logo) => (
           <motion.div

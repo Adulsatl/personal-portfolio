@@ -52,6 +52,17 @@ export const RecommendationsGallery: React.FC<RecommendationsGalleryProps> = ({
     }
   }, [initialRecommendations])
 
+  // Auto-swipe testimonials every 5 seconds
+  useEffect(() => {
+    if (testimonials.length <= 1) return
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length)
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [testimonials.length])
+
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % testimonials.length)
   }
