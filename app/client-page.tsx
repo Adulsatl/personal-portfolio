@@ -576,6 +576,9 @@ export const StaticPortfolio = ({ portfolioData }) => {
         </div>
       </section>
 
+      {/* Certifications Section */}
+      <CertificationSection certifications={safeData.certifications} />
+
       {/* Professional Photo Gallery */}
       <section id="gallery" className="py-32 px-4 border-t border-cyan-500/10">
         <div className="max-w-6xl mx-auto">
