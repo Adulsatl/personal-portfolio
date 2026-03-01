@@ -388,58 +388,7 @@ export default function HomePage({ portfolioData = {} }) {
         </div>
       </section>
 
-      {/* Experience Section */}
-      <section
-        id="experience"
-        className="py-20 px-4 md:px-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm relative overflow-hidden"
-      >
-        <div className="max-w-5xl mx-auto relative z-10">
-          <OptimizedSectionTitle>Work Experience</OptimizedSectionTitle>
-
-          {safeData.experiences && safeData.experiences.length > 0 ? (
-            <div className="space-y-12">
-              {safeData.experiences.map((experience, index) => (
-                <OptimizedCard key={index} delay={index * 0.1}>
-                  <div className="relative pl-8 md:pl-12 border-l-2 border-cyan-500 dark:border-cyan-400">
-                    <div className="absolute w-5 h-5 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full -left-[11px] top-1" />
-
-                    <div className="p-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-100 dark:border-gray-700">
-                      <div className="flex flex-wrap justify-between items-start gap-2 mb-4">
-                        <h3 className="text-xl font-semibold text-cyan-600 dark:text-cyan-400">{experience.role}</h3>
-                        <span className="text-sm px-4 py-1 bg-gradient-to-r from-cyan-100 to-blue-100 text-cyan-800 dark:from-cyan-900/40 dark:to-blue-900/40 dark:text-cyan-300 rounded-full font-medium">
-                          {experience.period}
-                        </span>
-                      </div>
-
-                      <p className="text-gray-600 dark:text-gray-400 mb-2">{experience.company}</p>
-                      <p className="text-gray-700 dark:text-gray-300 mb-4">{experience.description}</p>
-
-                      {experience.achievements && experience.achievements.length > 0 && (
-                        <div className="pt-2">
-                          <h4 className="font-medium mb-3 text-gray-800 dark:text-gray-200">Key Achievements:</h4>
-                          <ul className="space-y-2">
-                            {experience.achievements.map((achievement, achievementIndex) => (
-                              <li
-                                key={achievementIndex}
-                                className="flex items-start gap-2 text-gray-700 dark:text-gray-300"
-                              >
-                                <ChevronRight className="h-5 w-5 text-cyan-500 dark:text-cyan-400 flex-shrink-0 mt-0.5" />
-                                <span>{achievement}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </OptimizedCard>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">No work experience added yet.</div>
-          )}
-        </div>
-      </section>
+      
 
       {/* Projects Section */}
       <section

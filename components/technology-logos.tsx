@@ -109,7 +109,16 @@ export const TechnologyLogos = () => {
     },
   ]
 
-
+  return (
+    <AnimatedLogoGallery
+      logos={technologies}
+      title="Core Technologies & Tools"
+      subtitle="Professional expertise in enterprise IT infrastructure and administration"
+      columns={2}
+      mobileColumns={2}
+      tabletColumns={3}
+    />
+  )
 }
 
 export default TechnologyLogos

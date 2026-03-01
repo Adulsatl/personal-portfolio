@@ -197,19 +197,34 @@ export default function LiveTroubleshooting({ onSubmit }: LiveTroubleshootingPro
   const [isLoading, setIsLoading] = useState(false)
   const [copiedStep, setCopiedStep] = useState<number | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!problemInput.trim()) return
 
     setIsLoading(true)
 
-    // Simulate AI processing delay
-    setTimeout(() => {
+    try {
+      // Generate troubleshooting steps
       const generatedResponse = generateTroubleshootingSteps(problemInput)
       setResponse(generatedResponse)
       onSubmit?.(generatedResponse)
+
+      // Save to database (enquiries table)
+      await fetch("/api/enquiries/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "IT Support Query",
+          email: "system@troubleshooting.local",
+          message: `Problem: ${problemInput}\n\nGenerated Solution: ${JSON.stringify(generatedResponse, null, 2)}`,
+        }),
+      })
+
       setIsLoading(false)
-    }, 1000)
+    } catch (error) {
+      console.error("[v0] Error saving troubleshooting query:", error)
+      setIsLoading(false)
+    }
   }
 
   const copyToClipboard = (text: string, stepNum: number) => {

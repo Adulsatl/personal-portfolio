@@ -3,14 +3,13 @@
 import { useState, useEffect, useMemo } from "react"
 import { Menu, X, Github, Linkedin, Mail, Phone, MapPin, ExternalLink, Code, Briefcase } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import CertificationSection from "@/components/certification-section"
-import ContactForm from "@/components/contact-form"
+import SleekIntro from "@/components/sleek-intro"
+import ModernCertificationsVault from "@/components/modern-certifications-vault"
+import CircuitTimeline from "@/components/circuit-timeline"
+import ProjectsShowcase from "@/components/projects-showcase"
 import TechnologyLogos from "@/components/technology-logos"
 import ProfessionalPhotoGallery from "@/components/professional-photo-gallery"
 import RecommendationsGallery from "@/components/recommendations-gallery"
-import TypingIntro from "@/components/typing-intro"
-import CertificationsVault from "@/components/certifications-vault"
-import ExperienceTimeline from "@/components/experience-timeline"
 import LiveTroubleshooting from "@/components/live-troubleshooting"
 
 function usePhotos(portfolioData?: any) {
@@ -92,7 +91,6 @@ export const StaticPortfolio = ({ portfolioData }) => {
     { id: "gallery", label: "Gallery" },
     { id: "testimonials", label: "Testimonials" },
     { id: "troubleshooting", label: "Troubleshooting" },
-    { id: "contact", label: "Contact" },
   ]
 
   useEffect(() => {
@@ -245,80 +243,11 @@ export const StaticPortfolio = ({ portfolioData }) => {
         </AnimatePresence>
       </motion.header>
 
-      <section id="hero" className="min-h-screen flex items-center px-4 pt-20">
-        <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-16 items-center">
-          <motion.div className="space-y-8" variants={staggerContainer} initial="hidden" animate="visible">
-            <motion.div variants={fadeInUp}>
-              <p className="text-cyan-400 font-medium tracking-widest uppercase text-sm mb-2">
-                Welcome to my portfolio
-              </p>
-              <h1 className="text-6xl md:text-7xl font-bold leading-tight tracking-tight">{safeData.name}</h1>
-              <p className="text-2xl text-cyan-400 font-medium mt-2">{safeData.title}</p>
-            </motion.div>
-
-            <motion.p variants={fadeInUp} className="text-lg text-gray-300 leading-relaxed max-w-lg">
-              {safeData.shortBio}
-            </motion.p>
-
-            <motion.div variants={fadeInUp} className="flex flex-wrap gap-4 pt-4">
-              <motion.button
-                onClick={() => scrollToSection("contact")}
-                className="px-8 py-3 rounded-lg bg-cyan-500 text-slate-950 font-medium hover:bg-cyan-400 transition-all"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Get in Touch
-              </motion.button>
-
-              <motion.a
-                href={safeData.cvUrl || "#"}
-                download
-                className="px-8 py-3 rounded-lg border-2 border-cyan-500/50 text-cyan-400 font-medium hover:bg-cyan-500/10 transition-all"
-                whileHover={{ scale: 1.05 }}
-              >
-                Download CV
-              </motion.a>
-            </motion.div>
-
-            <motion.div variants={fadeInUp} className="flex gap-4 pt-4">
-              {safeData.socialLinks?.github && (
-                <motion.a
-                  href={safeData.socialLinks.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 rounded-full bg-slate-800/50 text-cyan-400 hover:bg-cyan-500/10 transition-all"
-                  whileHover={{ scale: 1.1 }}
-                >
-                  <Github size={20} />
-                </motion.a>
-              )}
-              {safeData.socialLinks?.linkedin && (
-                <motion.a
-                  href={safeData.socialLinks.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 rounded-full bg-slate-800/50 text-cyan-400 hover:bg-cyan-500/10 transition-all"
-                  whileHover={{ scale: 1.1 }}
-                >
-                  <Linkedin size={20} />
-                </motion.a>
-              )}
-            </motion.div>
-          </motion.div>
-
-          <motion.div
-            className="relative h-96 md:h-[500px] hidden lg:flex items-center justify-center"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            <div className="relative w-72 h-96 rounded-2xl overflow-hidden shadow-2xl border border-cyan-500/20">
-              <img src={photos[0] || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent" />
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      <SleekIntro
+        name={safeData.name}
+        title={safeData.title}
+        tagline={safeData.shortBio}
+      />
 
       <section id="about" className="py-32 px-4 border-t border-cyan-500/10">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
@@ -444,160 +373,12 @@ export const StaticPortfolio = ({ portfolioData }) => {
         </div>
       </section>
 
-      <section id="experience" className="py-32 px-4 border-t border-cyan-500/10">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-20"
-          >
-            <h2 className="text-5xl font-bold mb-6">
-              <span className="text-cyan-400">Work</span> Experience
-            </h2>
-            <div className="h-1 w-16 bg-cyan-500 rounded-full mx-auto" />
-          </motion.div>
+      <CircuitTimeline experiences={safeData.experiences} />
 
-          {safeData.experiences?.length ? (
-            <div className="space-y-8">
-              {safeData.experiences.map((exp, i) => (
-                <motion.div
-                  key={exp.role + i}
-                  className="relative pl-8 border-l-2 border-cyan-500/30"
-                  initial={{ opacity: 0, x: -30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                >
-                  <motion.div
-                    className="absolute -left-4 top-1 w-6 h-6 rounded-full bg-cyan-500 shadow-lg shadow-cyan-500/50"
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.2 + i * 0.1 }}
-                  />
-                  <div className="p-8 rounded-xl bg-slate-800/40 border border-cyan-500/20 hover:border-cyan-500/50 transition-all">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex items-center gap-3">
-                        <Briefcase size={20} className="text-cyan-400" />
-                        <div>
-                          <h3 className="text-xl font-semibold text-cyan-400">{exp.role}</h3>
-                          <p className="text-gray-400">{exp.company}</p>
-                        </div>
-                      </div>
-                      <span className="text-xs px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                        {exp.period}
-                      </span>
-                    </div>
-                    <p className="text-gray-300 mb-4">{exp.description}</p>
-                    {exp.achievements?.length > 0 && (
-                      <ul className="space-y-2">
-                        {exp.achievements.map((ach, idx) => (
-                          <li key={idx} className="flex items-start gap-3 text-gray-300 text-sm">
-                            <span className="text-cyan-400 mt-1">▹</span>
-                            <span>{ach}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center text-gray-500">No work experience added yet.</p>
-          )}
-        </div>
-      </section>
+      <ProjectsShowcase projects={safeData.projects} />
 
-      {/* Typing Intro Section */}
-      <TypingIntro
-        title={safeData.name}
-        subtitle={safeData.title}
-        lines={[
-          safeData.shortBio || "Professional IT Administrator",
-          "Infrastructure | Security | Automation",
-          "Always learning, always improving",
-        ]}
-      />
-
-      {/* Certifications Vault */}
-      <CertificationsVault certifications={safeData.certifications} />
-
-      {/* Experience Timeline */}
-      <ExperienceTimeline experiences={safeData.experiences} />
-
-      <section id="projects" className="py-32 px-4">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-20"
-          >
-            <h2 className="text-5xl font-bold mb-6">
-              <span className="text-cyan-400">Featured</span> Projects
-            </h2>
-            <div className="h-1 w-16 bg-cyan-500 rounded-full mx-auto" />
-          </motion.div>
-
-          {safeData.projects?.length ? (
-            <motion.div
-              className="grid md:grid-cols-2 gap-8"
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-            >
-              {safeData.projects.map((project, i) => (
-                <motion.div
-                  key={project.title + i}
-                  className="rounded-xl overflow-hidden bg-slate-800/40 border border-cyan-500/20 hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10"
-                  variants={fadeInUp}
-                >
-                  <div className="aspect-video relative overflow-hidden bg-slate-800">
-                    <img
-                      src={project.image || "/placeholder.svg"}
-                      alt={project.title}
-                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
-                  </div>
-                  <div className="p-6 space-y-4">
-                    <h3 className="text-xl font-semibold text-cyan-400">{project.title}</h3>
-                    <p className="text-gray-300 text-sm">{project.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {project.technologies?.map((tech, idx) => (
-                        <span
-                          key={tech + idx}
-                          className="px-3 py-1 text-xs rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                    {project.link && (
-                      <a
-                        href={project.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center text-cyan-400 hover:text-cyan-300 transition-colors text-sm font-medium"
-                      >
-                        View Project <ExternalLink className="h-4 w-4 ml-2" />
-                      </a>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <p className="text-center text-gray-500">No projects added yet.</p>
-          )}
-        </div>
-      </section>
-
-      <CertificationSection certifications={safeData.certifications} />
-
+      {/* Certifications Vault Section */}
+      <ModernCertificationsVault certifications={safeData.certifications} />
 
       {/* Professional Photo Gallery */}
       <section id="gallery" className="py-32 px-4 border-t border-cyan-500/10">
@@ -613,81 +394,8 @@ export const StaticPortfolio = ({ portfolioData }) => {
         </div>
       </section>
 
-      {/* Live Troubleshooting Simulation */}
+      {/* Live Troubleshooting - Replaces Standard Contact Form */}
       <LiveTroubleshooting />
-
-      <section id="contact" className="py-32 px-4 border-t border-cyan-500/10">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-20"
-          >
-            <h2 className="text-5xl font-bold mb-6">
-              <span className="text-cyan-400">Get</span> in Touch
-            </h2>
-            <div className="h-1 w-16 bg-cyan-500 rounded-full mx-auto" />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="p-12 rounded-2xl bg-slate-800/40 border border-cyan-500/20"
-          >
-            <div className="grid md:grid-cols-2 gap-16">
-              <div className="space-y-8">
-                <h3 className="text-2xl font-semibold text-cyan-400">Contact Information</h3>
-
-                <div className="space-y-6">
-                  {safeData.contact?.email && (
-                    <motion.a
-                      href={`mailto:${safeData.contact.email}`}
-                      className="flex items-center gap-4 group"
-                      whileHover={{ x: 4 }}
-                    >
-                      <div className="p-3 rounded-lg bg-cyan-500/10 text-cyan-400 group-hover:bg-cyan-500/20 transition-all">
-                        <Mail size={20} />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-400">Email</p>
-                        <p className="text-gray-300 group-hover:text-cyan-400 transition-colors">
-                          {safeData.contact.email}
-                        </p>
-                      </div>
-                    </motion.a>
-                  )}
-                  {safeData.contact?.phone && (
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-lg bg-cyan-500/10 text-cyan-400">
-                        <Phone size={20} />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-400">Phone</p>
-                        <p className="text-gray-300">{safeData.contact.phone}</p>
-                      </div>
-                    </div>
-                  )}
-                  {safeData.contact?.location && (
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-lg bg-cyan-500/10 text-cyan-400">
-                        <MapPin size={20} />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-400">Location</p>
-                        <p className="text-gray-300">{safeData.contact.location}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <ContactForm />
-            </div>
-          </motion.div>
-        </div>
-      </section>
 
       <footer className="py-12 px-4 border-t border-cyan-500/10">
         <div className="max-w-7xl mx-auto flex justify-between items-center flex-col md:flex-row gap-6">
