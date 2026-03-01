@@ -8,6 +8,10 @@ import ContactForm from "@/components/contact-form"
 import TechnologyLogos from "@/components/technology-logos"
 import ProfessionalPhotoGallery from "@/components/professional-photo-gallery"
 import RecommendationsGallery from "@/components/recommendations-gallery"
+import TypingIntro from "@/components/typing-intro"
+import CertificationsVault from "@/components/certifications-vault"
+import ExperienceTimeline from "@/components/experience-timeline"
+import LiveTroubleshooting from "@/components/live-troubleshooting"
 
 function usePhotos(portfolioData?: any) {
   const uploaded = Array.isArray(portfolioData?.photos) ? portfolioData.photos : []
@@ -87,6 +91,7 @@ export const StaticPortfolio = ({ portfolioData }) => {
     { id: "certifications", label: "Certifications" },
     { id: "gallery", label: "Gallery" },
     { id: "testimonials", label: "Testimonials" },
+    { id: "troubleshooting", label: "Troubleshooting" },
     { id: "contact", label: "Contact" },
   ]
 
@@ -505,6 +510,23 @@ export const StaticPortfolio = ({ portfolioData }) => {
         </div>
       </section>
 
+      {/* Typing Intro Section */}
+      <TypingIntro
+        title={safeData.name}
+        subtitle={safeData.title}
+        lines={[
+          safeData.shortBio || "Professional IT Administrator",
+          "Infrastructure | Security | Automation",
+          "Always learning, always improving",
+        ]}
+      />
+
+      {/* Certifications Vault */}
+      <CertificationsVault certifications={safeData.certifications} />
+
+      {/* Experience Timeline */}
+      <ExperienceTimeline experiences={safeData.experiences} />
+
       <section id="projects" className="py-32 px-4">
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -590,6 +612,9 @@ export const StaticPortfolio = ({ portfolioData }) => {
           <RecommendationsGallery />
         </div>
       </section>
+
+      {/* Live Troubleshooting Simulation */}
+      <LiveTroubleshooting />
 
       <section id="contact" className="py-32 px-4 border-t border-cyan-500/10">
         <div className="max-w-6xl mx-auto">
