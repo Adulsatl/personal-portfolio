@@ -7,6 +7,7 @@ import SleekIntro from "@/components/sleek-intro"
 import ModernCertificationsVault from "@/components/modern-certifications-vault"
 import CircuitTimeline from "@/components/circuit-timeline"
 import ProjectsShowcase from "@/components/projects-showcase"
+import BadgesShowcase from "@/components/badges-showcase"
 import TechnologyLogos from "@/components/technology-logos"
 import ProfessionalPhotoGallery from "@/components/professional-photo-gallery"
 import RecommendationsGallery from "@/components/recommendations-gallery"
@@ -73,6 +74,7 @@ export const StaticPortfolio = ({ portfolioData }) => {
       socialLinks: portfolioData?.socialLinks || {},
       contact: portfolioData?.contact || {},
       certifications: portfolioData?.certifications || [],
+      badges: portfolioData?.badges || [],
     }),
     [portfolioData, photos],
   )
@@ -88,6 +90,7 @@ export const StaticPortfolio = ({ portfolioData }) => {
     { id: "experience", label: "Experience" },
     { id: "projects", label: "Projects" },
     { id: "certifications", label: "Certifications" },
+    { id: "badges", label: "Badges" },
     { id: "gallery", label: "Gallery" },
     { id: "testimonials", label: "Testimonials" },
     { id: "troubleshooting", label: "Troubleshooting" },
@@ -379,6 +382,9 @@ export const StaticPortfolio = ({ portfolioData }) => {
 
       {/* Certifications Vault Section */}
       <ModernCertificationsVault certifications={safeData.certifications} />
+
+      {/* Badges Showcase Section */}
+      <BadgesShowcase badges={safeData.badges} />
 
       {/* Professional Photo Gallery */}
       <section id="gallery" className="py-32 px-4 border-t border-cyan-500/10">

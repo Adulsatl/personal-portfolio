@@ -29,6 +29,10 @@ export async function getPortfolioData() {
         if (data.content && !data.content.certifications) {
           data.content.certifications = []
         }
+        // Ensure badges array exists
+        if (data.content && !data.content.badges) {
+          data.content.badges = []
+        }
         // Ensure photos array exists
         if (data.content && !Array.isArray(data.content.photos)) {
           data.content.photos = []
@@ -39,6 +43,7 @@ export async function getPortfolioData() {
           ...(data.content || {}),
           // keep safe defaults for arrays
           certifications: Array.isArray(data.content?.certifications) ? data.content.certifications : [],
+          badges: Array.isArray(data.content?.badges) ? data.content.badges : [],
           photos: Array.isArray(data.content?.photos) ? data.content.photos : [],
         }
         lastFetchTime = now
@@ -267,5 +272,6 @@ function getDefaultPortfolioData() {
       location: "",
     },
     certifications: [], // Ensure certifications array exists in default data
+    badges: [], // Ensure badges array exists in default data
   }
 }
