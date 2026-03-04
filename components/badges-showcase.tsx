@@ -1,16 +1,20 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Award, CheckCircle2 } from 'lucide-react'
+import { Award, CheckCircle2, ExternalLink } from 'lucide-react'
 
 interface Badge {
   id: string
   name: string
   description: string
   icon?: string
+  image?: string
+  badgeImage?: string
   category?: string
   color?: string
   year?: number
+  verificationUrl?: string
+  link?: string
 }
 
 interface BadgesShowcaseProps {
@@ -111,7 +115,15 @@ export default function BadgesShowcase({ badges = defaultBadges }: BadgesShowcas
           viewport={{ once: true, margin: '-100px' }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
         >
-          {displayedBadges.map((badge) => (
+          {displayedBadges.map((badge) => {
+            const handleBadgeClick = () => {
+              const url = badge.verificationUrl || badge.link
+              if (url) {
+                window.open(url, '_blank', 'noopener,noreferrer')
+              }
+            }
+
+            return (
             <motion.div key={badge.id} variants={badgeVariant} className="group">
               <div className="relative h-full">
                 {/* Glowing background */}
@@ -120,11 +132,24 @@ export default function BadgesShowcase({ badges = defaultBadges }: BadgesShowcas
                 />
 
                 {/* Card */}
-                <div className="relative bg-slate-800/50 border border-cyan-500/30 rounded-xl p-6 h-full flex flex-col hover:border-cyan-500/70 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-cyan-500/20">
-                  {/* Icon/Badge at top */}
+                <div 
+                  onClick={handleBadgeClick}
+                  className="relative bg-slate-800/50 border border-cyan-500/30 rounded-xl p-6 h-full flex flex-col hover:border-cyan-500/70 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-cyan-500/20 cursor-pointer"
+                >
+                  {/* Icon/Badge Image at top - Medium size */}
                   <div className="flex items-center justify-between mb-4">
-                    <div className="text-4xl opacity-80">
-                      {badgeIcons[badge.name] || '★'}
+                    <div className="w-24 h-24 flex items-center justify-center rounded-lg bg-slate-700/50 overflow-hidden">
+                      {badge.badgeImage || badge.image ? (
+                        <img 
+                          src={badge.badgeImage || badge.image} 
+                          alt={badge.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="text-5xl opacity-80">
+                          {badgeIcons[badge.name] || '★'}
+                        </div>
+                      )}
                     </div>
                     {badge.year && (
                       <span className="text-xs px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
@@ -143,19 +168,27 @@ export default function BadgesShowcase({ badges = defaultBadges }: BadgesShowcas
                     </p>
                   </div>
 
-                  {/* Category and check */}
+                  {/* Category and Verification Button */}
                   <div className="flex items-center justify-between pt-4 border-t border-cyan-500/10">
-                    {badge.category && (
-                      <span className="text-xs px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                        {badge.category}
-                      </span>
-                    )}
-                    <CheckCircle2 className="w-4 h-4 text-cyan-400 opacity-70 group-hover:opacity-100 transition-opacity" />
+                    <div className="flex items-center gap-2">
+                      {badge.category && (
+                        <span className="text-xs px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                          {badge.category}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {(badge.verificationUrl || badge.link) && (
+                        <ExternalLink className="w-4 h-4 text-cyan-400 opacity-70 group-hover:opacity-100 transition-opacity" />
+                      )}
+                      <CheckCircle2 className="w-4 h-4 text-cyan-400 opacity-70 group-hover:opacity-100 transition-opacity" />
+                    </div>
                   </div>
                 </div>
               </div>
             </motion.div>
-          ))}
+            )
+          })}
         </motion.div>
 
         {/* Stats footer */}

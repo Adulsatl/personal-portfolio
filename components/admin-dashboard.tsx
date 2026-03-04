@@ -17,6 +17,7 @@ import {
   User,
   Code,
   Award,
+  Medal,
   Mail,
   Settings,
   Briefcase,
@@ -34,6 +35,7 @@ import ProjectsTab from "@/components/admin/projects-tab"
 import ContactTab from "@/components/admin/contact-tab"
 import SettingsTab from "@/components/admin/settings-tab"
 import CertificationsTab from "@/components/admin/certifications-tab"
+import BadgesTab from "@/components/admin/badges-tab"
 import EnquiriesTab from "@/components/admin/enquiries-tab"
 import GalleryTab from "@/components/admin/gallery-tab"
 import TestimonialsTab from "@/components/admin/testimonials-tab"
@@ -243,6 +245,7 @@ function AdminDashboard({ initialPortfolioData, initialMaintenanceMode, initialE
     { id: "experience", label: "Experience", icon: Briefcase },
     { id: "projects", label: "Projects", icon: LayoutDashboard },
     { id: "certifications", label: "Certifications", icon: Award },
+    { id: "badges", label: "Badges", icon: Medal },
     { id: "contact", label: "Contact", icon: Mail },
     { id: "enquiries", label: "Enquiries", icon: Mail },
     { id: "gallery", label: "Gallery", icon: ImageIcon },
@@ -475,6 +478,10 @@ function AdminDashboard({ initialPortfolioData, initialMaintenanceMode, initialE
 
                 {activeTab === "certifications" && (
                   <CertificationsTab portfolioData={portfolioData} setPortfolioData={setPortfolioData} />
+                )}
+
+                {activeTab === "badges" && (
+                  <BadgesTab />
                 )}
 
                 {activeTab === "contact" && (
