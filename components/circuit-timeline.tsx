@@ -4,14 +4,17 @@ import { motion } from 'framer-motion'
 import { Building2, Zap, MapPin, Calendar } from 'lucide-react'
 
 interface TimelineExperience {
-  id: string
-  title: string
+  id?: string
+  role: string
   company: string
-  location?: string
-  startDate: string
-  endDate?: string
+  period?: string
   description?: string
   achievements?: string[]
+  // Legacy fields for backwards compatibility
+  title?: string
+  location?: string
+  startDate?: string
+  endDate?: string
   isCurrent?: boolean
 }
 
@@ -101,8 +104,8 @@ export default function CircuitTimeline({ experiences = [] }: CircuitTimelinePro
                       </div>
 
                       <div className="relative z-10">
-                        {/* Current badge */}
-                        {exp.isCurrent && (
+                        {/* Current badge - check if period contains "Present" */}
+                        {exp.period && exp.period.includes('Present') && (
                           <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
@@ -113,7 +116,7 @@ export default function CircuitTimeline({ experiences = [] }: CircuitTimelinePro
                         )}
 
                         {/* Position and company */}
-                        <h3 className="text-2xl font-bold text-white mb-2">{exp.title}</h3>
+                        <h3 className="text-2xl font-bold text-white mb-2">{exp.role || exp.title}</h3>
 
                         <div className="flex flex-col gap-2 mb-4">
                           <div className="flex items-center gap-2 text-cyan-300">
@@ -131,7 +134,7 @@ export default function CircuitTimeline({ experiences = [] }: CircuitTimelinePro
                           <div className="flex items-center gap-2 text-slate-400 text-sm">
                             <Calendar className="w-4 h-4" />
                             <span>
-                              {exp.startDate} - {exp.endDate || 'Present'}
+                              {exp.period || `${exp.startDate} - ${exp.endDate || 'Present'}`}
                             </span>
                           </div>
                         </div>

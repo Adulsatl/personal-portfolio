@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Trash2, Plus } from 'lucide-react'
 import FileUpload from '@/components/file-upload'
@@ -16,28 +16,10 @@ interface Badge {
   verificationUrl?: string
 }
 
-export default function BadgesTab() {
-  const [badges, setBadges] = useState<Badge[]>([])
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+export default function BadgesTab({ portfolioData, setPortfolioData }) {
   const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({})
 
-  useEffect(() => {
-    fetchBadges()
-  }, [])
-
-  const fetchBadges = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch('/api/portfolio/data')
-      const data = await response.json()
-      setBadges(Array.isArray(data.badges) ? data.badges : [])
-    } catch (error) {
-      console.error('Error fetching badges:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const badges: Badge[] = portfolioData?.badges || []
 
   const addBadge = () => {
     const newBadge: Badge = {
@@ -48,17 +30,26 @@ export default function BadgesTab() {
       color: 'from-cyan-500 to-blue-500',
       year: new Date().getFullYear(),
     }
-    setBadges([...badges, newBadge])
+    setPortfolioData({
+      ...portfolioData,
+      badges: [...badges, newBadge],
+    })
   }
 
   const updateBadge = (index: number, field: keyof Badge, value: any) => {
     const updated = [...badges]
     updated[index] = { ...updated[index], [field]: value }
-    setBadges(updated)
+    setPortfolioData({
+      ...portfolioData,
+      badges: updated,
+    })
   }
 
   const deleteBadge = (index: number) => {
-    setBadges(badges.filter((_, i) => i !== index))
+    setPortfolioData({
+      ...portfolioData,
+      badges: badges.filter((_, i) => i !== index),
+    })
   }
 
   const handleImageUpload = (url: string, _filename: string, _path: string, index: number) => {
@@ -67,38 +58,6 @@ export default function BadgesTab() {
 
   const handleImageError = (index: number) => {
     setImageErrors({ ...imageErrors, [index]: true })
-  }
-
-  const saveBadges = async () => {
-    try {
-      setSaving(true)
-      const response = await fetch('/api/portfolio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ badges }),
-      })
-
-      if (response.ok) {
-        alert('Badges saved successfully!')
-      } else {
-        alert('Error saving badges')
-      }
-    } catch (error) {
-      console.error('Error saving badges:', error)
-      alert('Error saving badges')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Loading...</CardTitle>
-        </CardHeader>
-      </Card>
-    )
   }
 
   return (
@@ -235,22 +194,13 @@ export default function BadgesTab() {
           </div>
         ))}
 
-        <div className="flex gap-4">
-          <button
-            onClick={addBadge}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Add Badge
-          </button>
-          <button
-            onClick={saveBadges}
-            disabled={saving}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
-          >
-            {saving ? 'Saving...' : 'Save Badges'}
-          </button>
-        </div>
+        <button
+          onClick={addBadge}
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Add Badge
+        </button>
       </CardContent>
     </Card>
   )

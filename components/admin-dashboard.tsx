@@ -481,7 +481,7 @@ function AdminDashboard({ initialPortfolioData, initialMaintenanceMode, initialE
                 )}
 
                 {activeTab === "badges" && (
-                  <BadgesTab />
+                  <BadgesTab portfolioData={portfolioData} setPortfolioData={setPortfolioData} />
                 )}
 
                 {activeTab === "contact" && (
