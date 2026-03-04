@@ -9,6 +9,7 @@ interface Certification {
   issuer: string
   date?: string
   credentialUrl?: string
+  link?: string
   category?: string
 }
 
@@ -111,9 +112,17 @@ export default function ModernCertificationsVault({
             const categoryKey = cert.category || 'default'
             const colors = categoryColors[categoryKey] || categoryColors['default']
 
+            const handleCardClick = () => {
+              const url = cert.credentialUrl || cert.link
+              if (url) {
+                window.open(url, '_blank', 'noopener,noreferrer')
+              }
+            }
+
             return (
               <motion.div key={cert.id || idx} variants={itemVariants}>
                 <motion.div
+                  onClick={handleCardClick}
                   whileHover={{ y: -8, scale: 1.02 }}
                   className={`relative h-full p-6 rounded-xl border backdrop-blur-sm ${colors.bg} ${colors.border} overflow-hidden group cursor-pointer transition-all`}
                 >
@@ -145,11 +154,12 @@ export default function ModernCertificationsVault({
                     </div>
 
                     {/* Link */}
-                    {cert.credentialUrl && (
+                    {(cert.credentialUrl || cert.link) && (
                       <motion.a
-                        href={cert.credentialUrl}
+                        href={cert.credentialUrl || cert.link}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
                         whileHover={{ gap: 8 }}
                         className={`inline-flex items-center gap-2 mt-4 ${colors.text} font-semibold text-sm hover:opacity-80 transition-opacity`}
                       >
