@@ -142,7 +142,7 @@ export const RecommendationsGallery: React.FC<RecommendationsGalleryProps> = ({
           viewport={{ once: true }}
           className="text-slate-300 text-lg"
         >
-          Trusted by industry professionals across the UAE
+          What Educators and IT Professionals Say About My Work
         </motion.p>
       </div>
 
