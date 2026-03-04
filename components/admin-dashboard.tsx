@@ -169,6 +169,8 @@ function AdminDashboard({ initialPortfolioData, initialMaintenanceMode, initialE
 
     try {
       console.log("Starting save process...")
+      console.log("[v0] Portfolio data before save:", portfolioData)
+      console.log("[v0] Badges count:", portfolioData.badges?.length || 0)
 
       // Update portfolio data
       console.log("Saving portfolio data...")
