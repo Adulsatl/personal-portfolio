@@ -70,15 +70,20 @@ export async function getPortfolioData() {
 // Update portfolio data
 export async function updatePortfolioData(data: any) {
   try {
-    console.log("Updating portfolio data")
+    console.log("Updating portfolio data with badges:", data.badges)
 
-    // Ensure certifications and photos arrays exist
+    // Ensure certifications, badges, and photos arrays exist
     if (!Array.isArray(data.certifications)) {
       data.certifications = []
+    }
+    if (!Array.isArray(data.badges)) {
+      data.badges = []
     }
     if (!Array.isArray(data.photos)) {
       data.photos = []
     }
+
+    console.log("Data to save:", data)
 
     const { error } = await supabaseAdmin.from("portfolio").upsert({
       id: "main",

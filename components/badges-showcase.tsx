@@ -91,7 +91,7 @@ export default function BadgesShowcase({ badges = defaultBadges }: BadgesShowcas
   const displayedBadges = badges.length > 0 ? badges : defaultBadges
 
   return (
-    <section id="badges" className="py-32 px-4 border-t border-cyan-500/10">
+    <section id="badges" className="py-32 px-4 border-t border-cyan-500/20 bg-gradient-to-b from-slate-900/50 to-transparent">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -99,13 +99,13 @@ export default function BadgesShowcase({ badges = defaultBadges }: BadgesShowcas
           viewport={{ once: true }}
           className="text-center mb-20"
         >
-          <h2 className="text-5xl font-bold mb-6">
-            <span className="text-cyan-400">Achievement</span> Badges
+          <h2 className="text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400">
+            Achievement Badges
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto mb-4">
-            Recognized expertise and professional achievements
+          <p className="text-gray-300 max-w-2xl mx-auto mb-6 text-lg">
+            Professional certifications and recognized expertise across IT infrastructure, security, and automation
           </p>
-          <div className="h-1 w-16 bg-cyan-500 rounded-full mx-auto" />
+          <div className="h-1 w-20 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full mx-auto" />
         </motion.div>
 
         <motion.div
@@ -113,7 +113,7 @@ export default function BadgesShowcase({ badges = defaultBadges }: BadgesShowcas
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-100px' }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
         >
           {displayedBadges.map((badge) => {
             const handleBadgeClick = () => {

@@ -37,6 +37,7 @@ const defaultPortfolioData = {
     location: "",
   },
   certifications: [],
+  badges: [],
   enquiries: [],
 }
 
@@ -149,6 +150,11 @@ export default function AdminPage() {
     // Create a deep copy to avoid mutating the original
     const sanitized = JSON.parse(JSON.stringify(data))
 
+    // Ensure badges array exists
+    if (!sanitized.badges || !Array.isArray(sanitized.badges)) {
+      sanitized.badges = []
+    }
+
     // Replace profile image if it's a blob URL or doesn't exist
     if (!sanitized.profileImage || sanitized.profileImage.includes("blob:")) {
       sanitized.profileImage = "/placeholder.svg?height=400&width=400"
@@ -179,6 +185,16 @@ export default function AdminPage() {
           cert.badgeImage = `/placeholder.svg?height=100&width=100&text=${encodeURIComponent(cert.name || "Badge")}`
         }
         return cert
+      })
+    }
+
+    // Sanitize badge images
+    if (sanitized.badges && Array.isArray(sanitized.badges)) {
+      sanitized.badges = sanitized.badges.map((badge) => {
+        if (!badge.badgeImage || badge.badgeImage.includes("blob:")) {
+          badge.badgeImage = `/placeholder.svg?height=100&width=100&text=${encodeURIComponent(badge.name || "Badge")}`
+        }
+        return badge
       })
     }
 
