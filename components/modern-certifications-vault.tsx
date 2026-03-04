@@ -108,7 +108,8 @@ export default function ModernCertificationsVault({
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
           {displayedCerts.map((cert, idx) => {
-            const colors = categoryColors[cert.category || 'default']
+            const categoryKey = cert.category || 'default'
+            const colors = categoryColors[categoryKey] || categoryColors['default']
 
             return (
               <motion.div key={cert.id || idx} variants={itemVariants}>

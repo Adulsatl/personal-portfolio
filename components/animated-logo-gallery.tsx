@@ -146,7 +146,7 @@ export const AnimatedLogoGallery: React.FC<AnimatedLogoGalleryProps> = ({
               variants={glowVariants}
               initial="initial"
               animate="animate"
-              className={`absolute inset-0 rounded-xl blur-xl opacity-0 ${logo.color || 'bg-cyan-500'}`}
+              className="absolute inset-0 rounded-xl blur-xl opacity-0 bg-cyan-500"
               style={{ background: logo.color || 'rgba(34, 211, 238, 0.3)' }}
             />
 

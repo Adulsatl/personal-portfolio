@@ -112,7 +112,7 @@ export default function ProjectsShowcase({ projects = [] }: ProjectsShowcaseProp
 
                   {/* Technologies */}
                   <div className="flex flex-wrap gap-2 mb-6">
-                    {project.technologies.slice(0, 3).map((tech, idx) => (
+                    {(project.technologies || []).slice(0, 3).map((tech, idx) => (
                       <motion.span
                         key={idx}
                         whileHover={{ scale: 1.1 }}
@@ -121,9 +121,9 @@ export default function ProjectsShowcase({ projects = [] }: ProjectsShowcaseProp
                         {tech}
                       </motion.span>
                     ))}
-                    {project.technologies.length > 3 && (
+                    {(project.technologies || []).length > 3 && (
                       <span className="px-3 py-1 rounded-full text-xs font-semibold text-slate-400">
-                        +{project.technologies.length - 3}
+                        +{(project.technologies || []).length - 3}
                       </span>
                     )}
                   </div>

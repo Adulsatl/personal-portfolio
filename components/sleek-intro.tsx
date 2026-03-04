@@ -10,13 +10,13 @@ interface SleekIntroProps {
   tagline?: string
 }
 
-export default function SleekIntro({ name, title, tagline }: SleekIntroProps) {
+export default function SleekIntro({ name = '', title = '', tagline }: SleekIntroProps) {
   const [displayedName, setDisplayedName] = useState('')
   const [displayedTitle, setDisplayedTitle] = useState('')
   const [isComplete, setIsComplete] = useState(false)
 
   useEffect(() => {
-    if (!name) return
+    if (!name || !title) return
 
     let nameIndex = 0
     const nameInterval = setInterval(() => {
