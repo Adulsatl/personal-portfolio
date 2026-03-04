@@ -82,9 +82,7 @@ export default function LoginPage() {
     try {
       console.log("[v0] Starting login with email:", email)
 
-      if (!captchaToken) {
-        throw new Error("Please complete the CAPTCHA verification")
-      }
+      
 
       const supabase = createClient()
       const { data, error: authError } = await supabase.auth.signInWithPassword({
