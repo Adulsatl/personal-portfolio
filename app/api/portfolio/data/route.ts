@@ -3,7 +3,10 @@ import { getPortfolioData } from "@/lib/portfolio-service"
 
 export async function GET(request: NextRequest) {
   try {
-    const data = await getPortfolioData()
+    // Check for force refresh parameter from query string (for cache busting)
+    const forceRefresh = request.nextUrl.searchParams.has('t') || request.nextUrl.searchParams.get('refresh') === 'true'
+    
+    const data = await getPortfolioData(forceRefresh)
 
     if (!data) {
       return NextResponse.json(null, { status: 404 })
