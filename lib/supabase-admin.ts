@@ -17,37 +17,46 @@ try {
   }
 
   if (!supabaseUrl || !supabaseServiceRoleKey) {
-    console.warn("Missing Supabase admin environment variables - creating limited client")
-    console.warn("IMPORTANT: Admin functionality will be limited without the SUPABASE_SERVICE_ROLE_KEY")
-    console.warn("Please add this environment variable to your project settings")
+    console.warn("[v0] Missing Supabase admin environment variables - admin functionality unavailable")
+    console.warn("[v0] IMPORTANT: Admin functionality will be limited without the SUPABASE_SERVICE_ROLE_KEY")
+    console.warn("[v0] Please add this environment variable to your project settings")
 
-    // Create a client with the anon key as fallback
-    // This will have limited permissions but won't crash the app
-    supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-url.supabase.co",
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-key",
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-        global: {
-          fetch: (...args) => {
-            // Add custom fetch with timeout
-            const [url, options] = args
-            const controller = new AbortController()
-            const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
-
-            return fetch(url, {
-              ...options,
-              signal: controller.signal,
-            }).finally(() => {
-              clearTimeout(timeoutId)
-            })
-          },
-        },
+    // Create a dummy client that won't attempt to make requests
+    // This prevents "Invalid request, only public URLs are supported" error
+    supabaseAdmin = {
+      from: () => ({
+        select: () => ({
+          eq: () => ({ single: () => ({ data: null, error: null }) }),
+          order: () => ({ data: [], error: null }),
+          limit: () => ({ abortSignal: () => ({ data: [], error: null }) }),
+          abortSignal: () => ({ data: [], error: null }),
+          data: [],
+          error: null,
+        }),
+        insert: () => ({ data: null, error: new Error("Admin functionality unavailable") }),
+        update: () => ({ data: null, error: new Error("Admin functionality unavailable") }),
+        delete: () => ({ data: null, error: new Error("Admin functionality unavailable") }),
+        upsert: () => ({ data: null, error: new Error("Admin functionality unavailable") }),
+        eq: () => ({ data: [], error: null }),
+        single: () => ({ data: null, error: null }),
+        order: () => ({ data: [], error: null }),
+        limit: () => ({ data: [], error: null }),
+        abortSignal: () => ({ data: [], error: null }),
+      }),
+      storage: {
+        from: () => ({
+          upload: () => ({ data: null, error: new Error("Storage functionality unavailable") }),
+          remove: () => ({ data: null, error: new Error("Storage functionality unavailable") }),
+          getPublicUrl: () => ({ data: { publicUrl: "" } }),
+        }),
+        listBuckets: () => ({ data: [], error: null }),
       },
-    )
+      auth: {
+        getUser: () => ({ data: { user: null }, error: null }),
+        signOut: async () => ({ error: null }),
+        getSession: async () => ({ data: { session: null }, error: null }),
+      },
+    } as any
   } else {
     // Initialize Supabase admin client with proper credentials and timeout
     supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
