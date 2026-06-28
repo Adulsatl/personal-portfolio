@@ -4,6 +4,9 @@ import { createClient } from "@supabase/supabase-js"
 // This client bypasses Row Level Security (RLS) policies
 let supabaseAdmin: ReturnType<typeof createClient>
 
+// Track whether we have a real, usable Supabase admin client
+let isRealAdminClient = false
+
 // Update the client initialization with better error handling
 try {
   // Access environment variables directly when creating the client
@@ -81,6 +84,7 @@ try {
       },
     })
 
+    isRealAdminClient = true
     console.log("Supabase admin client initialized successfully")
   }
 } catch (error) {
@@ -177,7 +181,8 @@ const testConnection = async () => {
 }
 
 // Modify the test execution to be non-blocking
-if (process.env.NODE_ENV !== "production") {
+// Only run the connection test if we have a real admin client configured
+if (process.env.NODE_ENV !== "production" && isRealAdminClient) {
   // Run the test asynchronously to not block application startup
   setTimeout(() => {
     testConnection().catch((err) => {
