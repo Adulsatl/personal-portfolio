@@ -20,6 +20,7 @@ export default function BadgesTab({ portfolioData, setPortfolioData }) {
   const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({})
 
   const badges: Badge[] = portfolioData?.badges || []
+  console.log("[v0] BadgesTab received badges:", badges.length, "badges", badges)
 
   const addBadge = () => {
     const newBadge: Badge = {

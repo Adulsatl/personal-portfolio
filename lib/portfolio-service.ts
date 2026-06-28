@@ -6,12 +6,19 @@ let cachedPortfolioData: any = null
 let lastFetchTime = 0
 const CACHE_DURATION = 30000 // 30 seconds
 
-// Get portfolio data
-export async function getPortfolioData() {
+// Clear portfolio cache - call this after updates
+export function clearPortfolioCache() {
+  cachedPortfolioData = null
+  lastFetchTime = 0
+  console.log("[v0] Portfolio cache cleared")
+}
+
+// Get portfolio data with optional force refresh
+export async function getPortfolioData(forceRefresh = false) {
   try {
     // Check if we have cached data that's still fresh
     const now = Date.now()
-    if (cachedPortfolioData && now - lastFetchTime < CACHE_DURATION) {
+    if (!forceRefresh && cachedPortfolioData && now - lastFetchTime < CACHE_DURATION) {
       return cachedPortfolioData
     }
 
@@ -47,6 +54,7 @@ export async function getPortfolioData() {
           photos: Array.isArray(data.content?.photos) ? data.content.photos : [],
         }
         lastFetchTime = now
+        console.log("[v0] Portfolio service loaded badges:", cachedPortfolioData.badges?.length || 0)
         return cachedPortfolioData
       }
     } catch (error) {
@@ -96,9 +104,8 @@ export async function updatePortfolioData(data: any) {
       return false
     }
 
-    // Update cache
-    cachedPortfolioData = data
-    lastFetchTime = Date.now()
+    // Clear cache to force fresh data on next load
+    clearPortfolioCache()
 
     return true
   } catch (error) {

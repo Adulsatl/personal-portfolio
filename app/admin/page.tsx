@@ -84,16 +84,19 @@ export default function AdminPage() {
 
         // Load data
         try {
-          console.log("Fetching admin data...")
+          console.log("Fetching fresh admin data...")
 
-          // Fetch portfolio data
+          // Fetch portfolio data (with cache busting)
           try {
-            const portfolioResponse = await fetch("/api/portfolio/data")
+            const cacheRootQuery = `?t=${Date.now()}`
+            const portfolioResponse = await fetch(`/api/portfolio/data${cacheRootQuery}`)
             if (portfolioResponse.ok) {
               const portfolioData = await portfolioResponse.json()
+              console.log("[v0] Received portfolio data:", portfolioData)
               if (portfolioData) {
                 // Sanitize data to ensure no broken blob URLs
                 const sanitizedData = sanitizePortfolioData(portfolioData)
+                console.log("[v0] Sanitized data badges count:", sanitizedData.badges?.length || 0)
                 setPortfolioData(sanitizedData)
               }
             } else {
